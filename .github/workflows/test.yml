@@ -22,6 +22,8 @@ jobs:
          toolchain: stable
          components: rustfmt
          override: true
+    - name: Install build deps
+      run: sudo apt-get install gperf libfreetype-dev libfreetype util-linux-devel vulkan-devel xz-devel zlib-devel libxrandr-devel libxrender-devel libpng-devel libx11-devel libxcursor-devel
     - name: Verify versions
       run: rustc --version && rustup --version && cargo --version
     - name: Build
