@@ -19,7 +19,7 @@ jobs:
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
-         toolchain: ${{ matrix.rust-toolchain }}
+         toolchain: stable
          components: rustfmt
          override: true
     - name: Verify versions
