@@ -1,6 +1,6 @@
 # plotters-iced
 
-This is an implementation of a Iced backend for Plotters.
+This is an implementation of an Iced backend for Plotters.
 
 This backend has been optimized as for speed. Note that some specific plotting features supported in the Bitmap backend may not be implemented there, though.
 
