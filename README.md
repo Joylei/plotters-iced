@@ -1,6 +1,6 @@
 # plotters-iced
 [![Test and Build](https://github.com/joylei/plotters-iced/workflows/Test%20and%20Build/badge.svg?branch=master)](https://github.com/joylei/plotters-iced/actions?query=workflow%3A%22Test+and+Build%22)
-[![Documentation](https://docs.rs/plotters-iced/badge.svg)][documentation]
+[![Documentation](https://docs.rs/plotters-iced/badge.svg)](https://docs.rs/plotters-iced)
 [![Crates.io](https://img.shields.io/crates/v/plotters-iced.svg)](https://crates.io/crates/plotters-iced)
 [![License](https://img.shields.io/crates/l/plotters-iced.svg)](https://github.com/joylei/plotters-iced/blob/master/LICENSE)
 
