@@ -1,4 +1,5 @@
 # plotters-iced
+[![Test and Build](https://github.com/joylei/plotters-iced/workflows/Test%20and%20Build/badge.svg?branch=master)](https://github.com/joylei/plotters-iced/actions?query=workflow%3A%22Test+and+Build%22)
 
 This is an implementation of an Iced backend for Plotters.
 
