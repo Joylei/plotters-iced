@@ -1,4 +1,4 @@
-name: Rust
+name: Test and Build
 
 on:
   push:
@@ -28,8 +28,10 @@ jobs:
     #  run: sudo apt-get install gperf libfreetype-dev libX11 libXcursor libXrandr libXi
     - name: Verify versions
       run: rustc --version && rustup --version && cargo --version
-    - name: Build
+    - name: Cargo Build
       run: cargo build --verbose
+    - name: Build example
+      run: cargo build --example cpu-monitor
     - name: Run tests
       run: cargo test --verbose
     - name: Check code style
