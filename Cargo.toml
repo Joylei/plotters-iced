@@ -24,12 +24,7 @@ iced_graphics = { version = "0.2", features = ["canvas"] }
 cc = "1.0"
 
 [dev-dependencies]
-plotters = { version = "0.3", default_features = false, features = [
-    "chrono",
-    "bitmap_backend",
-    "area_series",
-    "ttf",
-] }
+plotters = { version = "0.3", default_features = false, features = ["chrono", "area_series"] }
 iced = { version = "0.3", features = ["canvas", "tokio"] }
 chrono = { version = "0.4", default-features = false }
 sysinfo = "0.18"
