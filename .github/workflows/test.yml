@@ -11,19 +11,21 @@ env:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        rust: [stable, beta]
     steps:
     - uses: actions/checkout@v2
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
-         toolchain: stable
+         toolchain: ${{ matrix.rust }}
          components: rustfmt
          override: true
-    - name: Install build deps
-      run: sudo apt-get install gperf libfreetype-dev libfreetype util-linux-devel vulkan-devel xz-devel zlib-devel libxrandr-devel libxrender-devel libpng-devel libx11-devel libxcursor-devel
+    #- name: Install build deps
+    #  run: sudo apt-get install gperf libfreetype-dev libX11 libXcursor libXrandr libXi
     - name: Verify versions
       run: rustc --version && rustup --version && cargo --version
     - name: Build
