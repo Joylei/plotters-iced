@@ -13,6 +13,17 @@
 
    See the examples for more details.
 
+   ## How to install?
+
+   Include `plotters-iced` in your `Cargo.toml` dependencies:
+
+   ```toml
+   [dependencies]
+   plotters-iced = "0.1"
+   iced = { version = "0.3", features = ["canvas", "tokio"] }
+   plotters="0.3"
+   ```
+
    ## Showcase
 
    ![CPU Monitor Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/plotter_iced_demo.png)
