@@ -159,9 +159,9 @@ impl SystemChart {
         let now = Utc::now();
         let data = self
             .sys
-            .get_processors()
+            .processors()
             .into_iter()
-            .map(|v| v.get_cpu_usage() as i32);
+            .map(|v| v.cpu_usage() as i32);
 
         //check if initialized
         if !self.is_initialized() {
