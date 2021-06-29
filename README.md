@@ -84,6 +84,13 @@ From this example, you'll learn:
 - how to make layouts of charts responsive
 - how to use fonts with charts
 
+### Example #2: `split-chart`
+
+This example shows you how to split drawing area:
+
+```sh
+cargo run --release --example split-chart
+```
 
 ## Are there any limitations?
 
