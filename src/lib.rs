@@ -13,6 +13,11 @@
 
    See the examples for more details.
 
+   ## Showcase
+
+   ![CPU Monitor Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/plotter_iced_demo.png)
+
+
    ## Example
    ```rust,ignore
    struct MyChart;
@@ -31,7 +36,7 @@
       }
    }
    ```
-
+   See the [examples](https://github.com/Joylei/plotters-iced/tree/master/examples) for more details.
 */
 
 extern crate iced_graphics;
