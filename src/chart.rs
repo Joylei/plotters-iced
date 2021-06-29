@@ -160,6 +160,8 @@ where
 ///
 /// ## Example
 /// ```rust,ignore
+/// use plotters::prelude::*;
+/// use plotters_iced::{Chart,ChartWidget};
 /// struct MyChart;
 /// impl Chart<Message> for MyChart {
 ///     fn build_chart<DB:DrawingBackend>(&self, builder: ChartBuilder<DB>) {
@@ -207,9 +209,9 @@ pub trait Chart<Message> {
         self.build_chart(builder);
     }
 
-    /// draw on [`iced::Canvas`]
+    /// draw on [`iced_graphics::canvas::Canvas`]
     ///
-    /// override this method if you want to use [`iced::canvas::Cache`]
+    /// override this method if you want to use [`iced_graphics::canvas::Cache`]
     ///
     /// ## Example
     /// ```rust,ignore
