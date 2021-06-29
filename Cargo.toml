@@ -13,18 +13,18 @@ categories = ["visualization"]
 authors = ["Joylei <leingliu@gmail.com>"]
 
 [dependencies]
-plotters = { version = "0.3", default_features = false }
+plotters = { version="0.3", default_features=false }
 plotters-backend = "0.3"
 num-traits = "0.2"
 libc = "0.2"
 iced_native = "0.4"
-iced_graphics = { version = "0.2", features = ["canvas"] }
+iced_graphics = { version="0.2", features=["canvas"] }
 
 [build-dependencies]
 cc = "1.0"
 
 [dev-dependencies]
-plotters = { version = "0.3", default_features = false, features = ["chrono", "area_series"] }
-iced = { version = "0.3", features = ["canvas", "tokio"] }
-chrono = { version = "0.4", default-features = false }
+plotters = { version="0.3", default_features=false, features=["chrono", "area_series"] }
+iced = { version="0.3", features=["canvas", "tokio"] }
+chrono = { version="0.4", default-features=false }
 sysinfo = "0.18"

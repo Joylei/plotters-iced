@@ -82,7 +82,6 @@ impl Application for State {
             Message::Tick => {
                 self.chart.update();
             }
-            _ => {}
         }
         Command::none()
     }

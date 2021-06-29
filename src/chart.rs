@@ -7,7 +7,7 @@ use iced_graphics::{
 use iced_native::{
     event, mouse::Interaction, Clipboard, Element, Font, Layout, Length, Rectangle, Vector, Widget,
 };
-use plotters::{chart::ChartBuilder, prelude::DrawingArea};
+use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
 use plotters_backend::{DrawingBackend, FontFamily, FontStyle};
 use std::hash::Hash;
 use std::marker::PhantomData;
@@ -102,9 +102,8 @@ where
         let bounds = layout.bounds();
         let geometry = self.chart.draw(bounds.size(), |frame| {
             let backend = IcedChartBackend::new(frame, renderer.backend(), &self.font_resolver);
-            let drawing_area: DrawingArea<_, _> = backend.into();
-            let builder = ChartBuilder::on(&drawing_area);
-            self.chart.build_chart(builder);
+            let root: DrawingArea<_, _> = backend.into();
+            self.chart.draw_chart(root);
         });
         let translation = Vector::new(bounds.x, bounds.y);
         let cursor = Interaction::default();
@@ -179,7 +178,34 @@ where
 /// ```
 pub trait Chart<Message> {
     /// draw chart with [`ChartBuilder`]
+    ///
+    /// for simple chart, you impl this method
     fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>);
+
+    /// override this method if you want more freedom of drawing area
+    ///
+    /// ## Example
+    /// ```rust,ignore
+    /// use plotters::prelude::*;
+    /// use plotters_iced::{Chart,ChartWidget};
+    ///
+    /// struct MyChart{}
+    ///
+    /// impl Chart<Message> for MyChart {
+    ///     // leave it empty
+    ///     fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>){}
+    ///     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>){
+    ///          let children = root.split_evenly((3,3));
+    ///          for (area, color) in children.into_iter().zip(0..) {
+    ///                area.fill(&Palette99::pick(color)).unwrap();
+    ///          }
+    ///      }
+    /// }
+    #[inline]
+    fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
+        let builder = ChartBuilder::on(&root);
+        self.build_chart(builder);
+    }
 
     /// draw on [`iced::Canvas`]
     ///

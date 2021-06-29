@@ -61,7 +61,6 @@ mod error;
 mod triangulate;
 mod utils;
 
-pub use chart::Chart;
-pub use chart::ChartWidget;
-pub use plotters::chart::ChartBuilder;
+pub use chart::{Chart, ChartWidget};
+pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 pub use plotters_backend::DrawingBackend;
