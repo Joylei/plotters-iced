@@ -8,7 +8,7 @@ edition = "2018"
 homepage = "https://github.com/Joylei/plotters-iced"
 repository = "https://github.com/Joylei/plotters-iced.git"
 documentation = "https://docs.rs/crate/plotters-iced/"
-keywords = ["plotters", "iced", "backend"]
+keywords = ["plotters", "chart", "plot", "iced", "backend"]
 categories = ["visualization"]
 authors = ["Joylei <leingliu@gmail.com>"]
 
