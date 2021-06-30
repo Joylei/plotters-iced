@@ -232,6 +232,7 @@ where
             FontTransform::Rotate90 => Some(90.0),
             FontTransform::Rotate180 => Some(180.0),
             FontTransform::Rotate270 => Some(270.0),
+            FontTransform::RotateAngle(angle) => Some(angle),
         };
         if let Some(rotate) = rotate {
             self.frame.with_save(move |frame| {
