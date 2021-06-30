@@ -31,7 +31,8 @@ jobs:
     - name: Cargo Build
       run: cargo build --verbose
     - name: Build example
-      run: cargo build --example cpu-monitor
+      run: cargo build --examples
+      continue-on-error: true
     - name: Run tests
       run: cargo test --verbose
     - name: Check code style
