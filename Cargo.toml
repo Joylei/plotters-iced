@@ -14,7 +14,7 @@ authors = ["Joylei <leingliu@gmail.com>"]
 
 [dependencies]
 plotters = { version="0.3", default_features=false }
-plotters-backend = "0.3.1"
+plotters-backend = "0.3"
 num-traits = "0.2"
 libc = "0.2"
 iced_native = "0.4"

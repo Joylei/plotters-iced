@@ -13,12 +13,26 @@ use crate::{
     },
 };
 use iced_graphics::{
-    backend, canvas, Backend, HorizontalAlignment, Size, Vector, VerticalAlignment,
+    backend,
+    canvas,
+    Backend,
+    HorizontalAlignment,
+    Size,
+    //Vector,
+    VerticalAlignment,
 };
 use iced_native::Font;
 use plotters_backend::{
-    text_anchor, BackendColor, BackendCoord, BackendStyle, BackendTextStyle, DrawingBackend,
-    DrawingErrorKind, FontFamily, FontStyle, FontTransform,
+    text_anchor,
+    BackendColor,
+    BackendCoord,
+    BackendStyle,
+    BackendTextStyle,
+    DrawingBackend,
+    DrawingErrorKind,
+    FontFamily,
+    FontStyle,
+    //FontTransform,
 };
 
 /// The Iced drawing backend
@@ -216,7 +230,7 @@ where
         let font = (self.font_resolver)(style.family(), style.style());
         let pos = pos.cvt_point();
 
-        let (w, h) = self.estimate_text_size(text, style)?;
+        //let (w, h) = self.estimate_text_size(text, style)?;
         let text = canvas::Text {
             content: text.to_owned(),
             position: pos,
@@ -227,23 +241,25 @@ where
             vertical_alignment,
         };
         //TODO: fix rotation util text rotation is supported by Iced
-        let rotate = match style.transform() {
-            FontTransform::None => None,
-            FontTransform::Rotate90 => Some(90.0),
-            FontTransform::Rotate180 => Some(180.0),
-            FontTransform::Rotate270 => Some(270.0),
-            FontTransform::RotateAngle(angle) => Some(angle),
-        };
-        if let Some(rotate) = rotate {
-            self.frame.with_save(move |frame| {
-                frame.fill_text(text);
-                frame.translate(Vector::new(pos.x + w as f32 / 2.0, pos.y + h as f32 / 2.0));
-                let angle = 2.0 * std::f32::consts::PI * rotate / 360.0;
-                frame.rotate(angle);
-            });
-        } else {
-            self.frame.fill_text(text);
-        }
+        // let rotate = match style.transform() {
+        //     FontTransform::None => None,
+        //     FontTransform::Rotate90 => Some(90.0),
+        //     FontTransform::Rotate180 => Some(180.0),
+        //     FontTransform::Rotate270 => Some(270.0),
+        //     FontTransform::RotateAngle(angle) => Some(angle),
+        // };
+        // if let Some(rotate) = rotate {
+        //     dbg!(rotate);
+        //     self.frame.with_save(move |frame| {
+        //         frame.fill_text(text);
+        //         frame.translate(Vector::new(pos.x + w as f32 / 2.0, pos.y + h as f32 / 2.0));
+        //         let angle = 2.0 * std::f32::consts::PI * rotate / 360.0;
+        //         frame.rotate(angle);
+        //     });
+        // } else {
+        //     self.frame.fill_text(text);
+        // }
+        self.frame.fill_text(text);
 
         Ok(())
     }
