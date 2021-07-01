@@ -26,9 +26,9 @@
 
    ## Showcase
 
-   ![CPU Monitor Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/plotter_iced_demo.png)
+   ![CPU Monitor Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.2/images/plotter_iced_demo.png)
 
-   ![WASM Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/split-chart-web.png)
+   ![WASM Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.2/images/split-chart-web.png)
 
    ## Example
    ```rust,ignore
