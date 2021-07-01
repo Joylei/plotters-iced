@@ -120,12 +120,11 @@ visit `http://localhost:8000/web-demo.html` in your browser.
 
 ### Limitation #1: No image rendering
 
-It's not possible without modification of the code until layer is supported by `Iced`.
+No image rendering for native and wasm applications.
 
-### Limitation #2: Limited text rendering
+### Limitation #2: Limited text rendering for native applications
 
-Only ttf font family are supported for text rendering, which is a limitation of `Iced`, please look at  [cpu-monitor.rs](./examples/cpu-monitor.rs). As well, font transforms are not supported,which is also a limitation of `Iced`.
-
+Only TTF font family are supported for text rendering, which is a limitation of `Iced`, please look at  [cpu-monitor.rs](./examples/cpu-monitor.rs). As well, font transforms are not supported,which is also a limitation of `Iced`.
 
 ## Credits
 

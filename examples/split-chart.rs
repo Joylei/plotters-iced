@@ -177,6 +177,12 @@ fn draw_chart<DB: DrawingBackend>(mut chart: ChartBuilder<DB>, power: usize) {
         .configure_mesh()
         .x_labels(3)
         .y_labels(3)
+        // .y_label_style(
+        //     ("sans-serif", 15)
+        //         .into_font()
+        //         .color(&plotters::style::colors::BLACK.mix(0.8))
+        //         .transform(FontTransform::RotateAngle(30.0)),
+        // )
         .draw()
         .unwrap();
 

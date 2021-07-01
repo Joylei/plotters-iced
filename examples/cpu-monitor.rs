@@ -321,7 +321,7 @@ impl Chart<Message> for CpuUsageChart {
                 ("sans-serif", 15)
                     .into_font()
                     .color(&plotters::style::colors::WHITE.mix(0.65))
-                    .transform(FontTransform::Rotate270),
+                    .transform(FontTransform::Rotate90),
             )
             .y_label_formatter(&|y| format!("{}%", y))
             .draw()
