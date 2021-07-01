@@ -14,7 +14,6 @@ cargo install -f wasm-bindgen-cli --version 0.2.69
 
 Then build the code and generate wasm bindings
 ```sh
-cargo install -f wasm-bindgen-cli --version 0.2.69
 cargo build --example split-chart --target wasm32-unknown-unknown
 wasm-bindgen ../target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
 ```
