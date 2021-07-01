@@ -34,6 +34,7 @@ where
         }
     }
 
+    /// only support fixed size for wasm
     #[inline]
     pub fn width(mut self, width: Length) -> Self {
         match width {
@@ -47,6 +48,7 @@ where
         self
     }
 
+    /// only support fixed size for wasm
     #[inline]
     pub fn height(mut self, height: Length) -> Self {
         match height {
@@ -60,6 +62,7 @@ where
         self
     }
 
+    /// stub for API compatible
     #[inline]
     pub fn resolve_font(self, _resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static) -> Self {
         self
@@ -84,6 +87,7 @@ where
         let backend = SvgBackend::new(bump, (self.width as u32, self.height as u32), &mut nodes);
         self.chart.draw_chart(backend.into());
 
+        // use ptr as id
         let ptr = self.chart as *const C;
         let mut h = DefaultHasher::new();
         ptr.hash(&mut h);
