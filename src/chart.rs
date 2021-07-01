@@ -1,7 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
-use iced_graphics::canvas::{Cursor, Event as CanvasEvent, Frame, Geometry};
+use iced_graphics::canvas::{Cursor, Event, Frame, Geometry};
 #[cfg(not(target_arch = "wasm32"))]
-use iced_native::{event::Status as EventStatus, Rectangle, Size};
+use iced_native::{event::Status, Rectangle, Size};
 #[cfg(target_arch = "wasm32")]
 use iced_web::{Rectangle, Size};
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
@@ -92,11 +92,11 @@ pub trait Chart<Message> {
     #[inline]
     fn update(
         &mut self,
-        event: CanvasEvent,
+        event: Event,
         bounds: Rectangle,
         cursor: Cursor,
-    ) -> (EventStatus, Option<Message>) {
-        (EventStatus::Ignored, None)
+    ) -> (Status, Option<Message>) {
+        (Status::Ignored, None)
     }
 }
 
@@ -104,8 +104,12 @@ pub trait Chart<Message> {
 #[doc(hidden)]
 pub mod dummy {
     use super::Size;
-    pub type Cursor = ();
-    pub type CanvasEvent = ();
+    pub enum Internal {}
+    pub type Cursor = Internal;
+    pub type Event = Internal;
+    pub enum Status {
+        Ignored,
+    }
     pub struct Frame;
 
     impl Frame {
@@ -118,8 +122,4 @@ pub mod dummy {
     }
 
     pub type Geometry = ();
-    #[derive(Clone, Copy)]
-    pub enum EventStatus {
-        Ignored,
-    }
 }
