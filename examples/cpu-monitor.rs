@@ -3,7 +3,6 @@
 // Iced backend for Plotters
 // Copyright: 2021, Joylei <leingliu@gmail.com>
 // License: MIT
-
 extern crate iced;
 extern crate plotters;
 extern crate sysinfo;

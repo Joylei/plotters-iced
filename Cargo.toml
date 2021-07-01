@@ -15,16 +15,33 @@ authors = ["Joylei <leingliu@gmail.com>"]
 [dependencies]
 plotters = { version="0.3", default_features=false }
 plotters-backend = "0.3"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 num-traits = "0.2"
 libc = "0.2"
 iced_native = "0.4"
 iced_graphics = { version="0.2", features=["canvas"] }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+iced_web = "0.4"
+dodrio = "0.2"
+web-sys = { verion="0.3", features=[] }
+wasm-bindgen = "0.2.69" #align with iced_web
+
 [build-dependencies]
 cc = "1.0"
 
 [dev-dependencies]
-plotters = { version="0.3", default_features=false, features=["chrono", "area_series"] }
+plotters = { version="0.3", default_features=false, features=[
+    "chrono",
+    "area_series",
+    "line_series",
+] }
 iced = { version="0.3", features=["canvas", "tokio"] }
 chrono = { version="0.4", default-features=false }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 sysinfo = { version="0.19", default_features=false }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+web-sys = { verion="0.3", features=["Window", "Document", "Element", "HtmlElement", "DomRect"] }

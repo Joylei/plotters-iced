@@ -6,7 +6,7 @@
 
 #[derive(Debug)]
 /// Indicates that some error occured within the Iced backend
-pub(crate) enum Error {}
+pub enum Error {}
 
 impl std::fmt::Display for Error {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {

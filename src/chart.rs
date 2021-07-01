@@ -1,158 +1,14 @@
-use crate::backend::IcedChartBackend;
-use iced_graphics::{
-    backend,
-    canvas::{self, Cursor, Frame, Geometry},
-    Backend, Defaults, Point, Primitive, Renderer, Size,
-};
-use iced_native::{
-    event, mouse::Interaction, Clipboard, Element, Font, Layout, Length, Rectangle, Vector, Widget,
-};
+#[cfg(not(target_arch = "wasm32"))]
+use iced_graphics::canvas::{Cursor, Event as CanvasEvent, Frame, Geometry};
+#[cfg(not(target_arch = "wasm32"))]
+use iced_native::{event::Status as EventStatus, Rectangle, Size};
+#[cfg(target_arch = "wasm32")]
+use iced_web::{Rectangle, Size};
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
-use plotters_backend::{DrawingBackend, FontFamily, FontStyle};
-use std::hash::Hash;
-use std::marker::PhantomData;
+use plotters_backend::DrawingBackend;
 
-/// Chart container, turns [`Chart`]s to [`Widget`]s
-pub struct ChartWidget<'a, Message, C, B>
-where
-    C: Chart<Message>,
-    B: Backend + backend::Text,
-{
-    chart: &'a mut C,
-    width: Length,
-    height: Length,
-    font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
-    _marker: PhantomData<(Message, B)>,
-}
-
-impl<'a, Message, C, B> ChartWidget<'a, Message, C, B>
-where
-    C: Chart<Message>,
-    B: Backend + backend::Text,
-{
-    #[inline]
-    pub fn new(chart: &'a mut C) -> Self {
-        Self {
-            chart,
-            width: Length::Fill,
-            height: Length::Fill,
-            font_resolver: Box::new(|_, _| Default::default()),
-            _marker: Default::default(),
-        }
-    }
-
-    #[inline]
-    pub fn width(mut self, width: Length) -> Self {
-        self.width = width;
-        self
-    }
-
-    #[inline]
-    pub fn height(mut self, height: Length) -> Self {
-        self.height = height;
-        self
-    }
-
-    #[inline]
-    pub fn resolve_font(
-        mut self,
-        resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
-    ) -> Self {
-        self.font_resolver = Box::new(resolver);
-        self
-    }
-}
-
-impl<'a, Message, C, B> Widget<Message, Renderer<B>> for ChartWidget<'a, Message, C, B>
-where
-    C: Chart<Message>,
-    B: Backend + backend::Text + 'static,
-{
-    #[inline]
-    fn width(&self) -> Length {
-        self.width
-    }
-
-    #[inline]
-    fn height(&self) -> Length {
-        self.height
-    }
-
-    #[inline]
-    fn layout(
-        &self,
-        _renderer: &Renderer<B>,
-        limits: &iced_native::layout::Limits,
-    ) -> iced_native::layout::Node {
-        let size = limits
-            .width(self.width)
-            .height(self.height)
-            .resolve(Size::ZERO);
-        iced_native::layout::Node::new(size)
-    }
-
-    fn draw(
-        &self,
-        renderer: &mut Renderer<B>,
-        _defaults: &Defaults,
-        layout: iced_native::Layout<'_>,
-        _cursor_position: Point,
-        _viewport: &Rectangle,
-    ) -> (Primitive, Interaction) {
-        let bounds = layout.bounds();
-        let geometry = self.chart.draw(bounds.size(), |frame| {
-            let backend = IcedChartBackend::new(frame, renderer.backend(), &self.font_resolver);
-            let root: DrawingArea<_, _> = backend.into();
-            self.chart.draw_chart(root);
-        });
-        let translation = Vector::new(bounds.x, bounds.y);
-        let cursor = Interaction::default();
-        (
-            Primitive::Translate {
-                translation,
-                content: Box::new(geometry.into()),
-            },
-            cursor,
-        )
-    }
-
-    fn on_event(
-        &mut self,
-        event: iced_native::Event,
-        layout: Layout<'_>,
-        cursor_position: Point,
-        _renderer: &Renderer<B>,
-        _clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
-    ) -> event::Status {
-        let bounds = layout.bounds();
-
-        let canvas_event = match event {
-            iced_native::Event::Mouse(mouse_event) => Some(canvas::Event::Mouse(mouse_event)),
-            iced_native::Event::Keyboard(keyboard_event) => {
-                Some(canvas::Event::Keyboard(keyboard_event))
-            }
-            _ => None,
-        };
-        if let Some(canvas_event) = canvas_event {
-            let cursor = Cursor::Available(cursor_position);
-            let (status, message) = self.chart.update(canvas_event, bounds, cursor);
-            if let Some(m) = message {
-                messages.push(m);
-            }
-            return status;
-        }
-        event::Status::Ignored
-    }
-
-    #[inline]
-    fn hash_layout(&self, state: &mut iced_native::Hasher) {
-        struct Marker;
-        std::any::TypeId::of::<Marker>().hash(state);
-        self.width.hash(state);
-        self.height.hash(state);
-    }
-}
+#[cfg(target_arch = "wasm32")]
+use dummy::*;
 
 /// Chart View Model
 ///
@@ -236,34 +92,34 @@ pub trait Chart<Message> {
     #[inline]
     fn update(
         &mut self,
-        event: canvas::Event,
+        event: CanvasEvent,
         bounds: Rectangle,
         cursor: Cursor,
-    ) -> (event::Status, Option<Message>) {
-        (event::Status::Ignored, None)
+    ) -> (EventStatus, Option<Message>) {
+        (EventStatus::Ignored, None)
     }
 }
 
-impl<'a, Message, C, B> From<ChartWidget<'a, Message, C, B>> for Element<'a, Message, Renderer<B>>
-where
-    Message: 'static,
-    C: Chart<Message>,
-    B: Backend + backend::Text + 'static,
-{
-    #[inline]
-    fn from(widget: ChartWidget<'a, Message, C, B>) -> Self {
-        Element::new(widget)
-    }
-}
+#[cfg(target_arch = "wasm32")]
+#[doc(hidden)]
+pub mod dummy {
+    use super::Size;
+    pub type Cursor = ();
+    pub type CanvasEvent = ();
+    pub struct Frame;
 
-impl<'a, Message, C, B> From<&'a mut C> for ChartWidget<'a, Message, C, B>
-where
-    Message: 'static,
-    C: Chart<Message>,
-    B: Backend + backend::Text + 'static,
-{
-    #[inline]
-    fn from(chart: &'a mut C) -> ChartWidget<'a, Message, C, B> {
-        ChartWidget::new(chart)
+    impl Frame {
+        pub fn new(_size: Size) -> Self {
+            Self
+        }
+        pub fn into_geometry(self) -> Geometry {
+            ()
+        }
+    }
+
+    pub type Geometry = ();
+    #[derive(Clone, Copy)]
+    pub enum EventStatus {
+        Ignored,
     }
 }

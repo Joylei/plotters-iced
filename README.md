@@ -4,13 +4,15 @@
 [![Crates.io](https://img.shields.io/crates/v/plotters-iced.svg)](https://crates.io/crates/plotters-iced)
 [![License](https://img.shields.io/crates/l/plotters-iced.svg)](https://github.com/joylei/plotters-iced/blob/master/LICENSE)
 
-This is an implementation of an Iced backend for Plotters.
+This is an implementation of an Iced backend for Plotters, for both native and wasm applications.
 
 This backend has been optimized as for speed. Note that some specific plotting features supported in the Bitmap backend may not be implemented there, though.
 
 ## Showcase
 
 ![CPU Monitor Example](./images/plotter_iced_demo.png)
+
+![WASM Example](./images/split-chart-web.png)
 
 ## What is Plotters?
 
@@ -86,11 +88,34 @@ From this example, you'll learn:
 
 ### Example #2: `split-chart`
 
-This example shows you how to split drawing area:
+This example shows you how to split drawing area.
 
+- Run as native application
 ```sh
 cargo run --release --example split-chart
 ```
+
+- Run as wasm application
+
+First, install wasm-bindgen-cli v0.2.69 (iced requires this version)
+```sh
+cargo install -f wasm-bindgen-cli --version 0.2.69
+```
+
+Then build the code and generate wasm bindings
+```sh
+cargo install -f wasm-bindgen-cli --version 0.2.69
+cargo build --example split-chart --target wasm32-unknown-unknown
+wasm-bindgen ../target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
+```
+
+Then, host the `examples` folder with a http server
+```sh
+cargo install https
+http examples
+```
+visit `http://localhost:8000/web-demo.html` in your browser.
+
 
 ## Are there any limitations?
 

@@ -4,13 +4,36 @@
 // Copyright: 2021, Joylei <leingliu@gmail.com>
 // License: MIT
 
+/*!
+
+## build this example as wasm
+First, install wasm-bindgen-cli v0.2.69 (iced requires this version)
+```sh
+cargo install -f wasm-bindgen-cli --version 0.2.69
+```
+
+Then build the code and generate wasm bindings
+```sh
+cargo install -f wasm-bindgen-cli --version 0.2.69
+cargo build --example split-chart --target wasm32-unknown-unknown
+wasm-bindgen ../target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
+```
+
+Then, use host the folder examples with a http server
+```sh
+cargo install https
+http examples
+```
+visit `http://localhost:8000/web-demo.html` in your browser.
+
+*/
+
 extern crate iced;
 extern crate plotters;
-extern crate sysinfo;
 
 use iced::{
     executor, Align, Application, Clipboard, Column, Command, Container, Element, Font, Length,
-    Settings,
+    Settings, Subscription,
 };
 use plotters::{coord::Shift, prelude::*};
 use plotters_backend::DrawingBackend;
@@ -18,27 +41,18 @@ use plotters_iced::{Chart, ChartWidget, DrawingArea};
 
 const TITLE_FONT_SIZE: u16 = 22;
 
-const FONT_REGULAR: Font = Font::External {
-    name: "sans-serif-regular",
-    bytes: include_bytes!("./fonts/notosans-regular.ttf"),
-};
-
-const FONT_BOLD: Font = Font::External {
-    name: "sans-serif-bold",
-    bytes: include_bytes!("./fonts/notosans-bold.ttf"),
-};
-
 fn main() {
     State::run(Settings {
         antialiasing: true,
-        default_font: Some(include_bytes!("./fonts/notosans-regular.ttf")),
         ..Settings::default()
     })
     .unwrap();
 }
 
 #[derive(Debug)]
-enum Message {}
+enum Message {
+    Tick,
+}
 
 struct State {
     chart: MyChart,
@@ -52,14 +66,14 @@ impl Application for State {
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             Self {
-                chart: Default::default(),
+                chart: MyChart::new(),
             },
             Command::none(),
         )
     }
 
     fn title(&self) -> String {
-        "CPU Monitor Example".to_owned()
+        "Split Chart Example".to_owned()
     }
 
     fn update(
@@ -76,11 +90,7 @@ impl Application for State {
             .align_items(Align::Start)
             .width(Length::Fill)
             .height(Length::Fill)
-            .push(
-                iced::Text::new("Iced test chart")
-                    .size(TITLE_FONT_SIZE)
-                    .font(FONT_BOLD),
-            )
+            .push(iced::Text::new("Iced test chart").size(TITLE_FONT_SIZE))
             .push(self.chart.view());
 
         Container::new(content)
@@ -93,25 +103,52 @@ impl Application for State {
             .into()
     }
 
-    // fn subscription(&self) -> Subscription<Self::Message> {
-    //     const FPS: u64 = 10;
-    //     iced::time::every(Duration::from_millis(1000 / FPS)).map(|_| Message::Tick)
-    // }
+    fn subscription(&self) -> Subscription<Self::Message> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            use std::time::Duration;
+            iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Subscription::none()
+        }
+    }
 }
 
-#[derive(Default)]
-struct MyChart {}
+#[allow(unused)]
+struct MyChart {
+    width: u16,  //wasm32 backend requires fixed size
+    height: u16, //wasm32 backend requires fixed size
+}
 
 impl MyChart {
+    pub fn new() -> Self {
+        Self {
+            width: 800,
+            height: 600,
+        }
+    }
+
     fn view(&mut self) -> Element<Message> {
-        ChartWidget::new(self)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .resolve_font(|_, style| match style {
-                plotters_backend::FontStyle::Bold => FONT_BOLD,
-                _ => FONT_REGULAR,
-            })
-            .into()
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let chart = ChartWidget::new(self)
+                .width(Length::Fill)
+                .height(Length::Fill);
+
+            chart.into()
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let width = self.width;
+            let height = self.height;
+            let chart = ChartWidget::new(self)
+                .width(Length::Units(width))
+                .height(Length::Units(height));
+
+            chart.into()
+        }
     }
 }
 
@@ -121,8 +158,35 @@ impl Chart<Message> for MyChart {
 
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         let children = root.split_evenly((2, 2));
-        for (area, color) in children.into_iter().zip(0..) {
-            area.fill(&Palette99::pick(color)).unwrap();
+        for (i, area) in children.iter().enumerate() {
+            let builder = ChartBuilder::on(area);
+            draw_chart(builder, i + 1);
         }
     }
+}
+
+fn draw_chart<DB: DrawingBackend>(mut chart: ChartBuilder<DB>, power: usize) {
+    let mut chart = chart
+        .margin(30)
+        .caption(format!("y=x^{}", power), ("sans-serif", 22))
+        .x_label_area_size(30)
+        .y_label_area_size(30)
+        .build_cartesian_2d(-1f32..1f32, -1.2f32..1.2f32)
+        .unwrap();
+
+    chart
+        .configure_mesh()
+        .x_labels(3)
+        .y_labels(3)
+        .draw()
+        .unwrap();
+
+    chart
+        .draw_series(LineSeries::new(
+            (-50..=50)
+                .map(|x| x as f32 / 50.0)
+                .map(|x| (x, x.powf(power as f32))),
+            &RED,
+        ))
+        .unwrap();
 }

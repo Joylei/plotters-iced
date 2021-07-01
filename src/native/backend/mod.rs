@@ -4,14 +4,14 @@
 // Copyright: 2021, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use crate::{
-    error::Error,
-    triangulate,
-    utils::{
-        converter::{cvt_color, cvt_stroke, CvtPoint},
-        path, shape,
-    },
+mod triangulate;
+mod utils;
+
+use self::utils::{
+    converter::{cvt_color, cvt_stroke, CvtPoint},
+    path, shape,
 };
+use crate::error::Error;
 use iced_graphics::{
     backend,
     canvas,

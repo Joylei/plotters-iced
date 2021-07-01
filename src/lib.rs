@@ -5,7 +5,7 @@
 // License: MIT
 
 /*!
-   The Plotters Iced backend.
+   The Plotters Iced backend, for both native and wasm applications.
 
    This is an implementation of a Iced backend for Plotters.
 
@@ -28,6 +28,7 @@
 
    ![CPU Monitor Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/plotter_iced_demo.png)
 
+   ![WASM Example](https://cdn.jsdelivr.net/gh/Joylei/plotters-iced@0.1.0/images/split-chart-web.png)
 
    ## Example
    ```rust,ignore
@@ -50,19 +51,23 @@
    See the [examples](https://github.com/Joylei/plotters-iced/tree/master/examples) for more details.
 */
 
-extern crate iced_graphics;
-extern crate iced_native;
-extern crate plotters;
 pub extern crate plotters_backend;
-
-mod backend;
 mod chart;
 mod error;
-mod triangulate;
-mod utils;
+#[cfg(not(target_arch = "wasm32"))]
+mod native;
+#[cfg(target_arch = "wasm32")]
+mod web;
 
 #[doc(inline)]
-pub use chart::{Chart, ChartWidget};
+pub use chart::Chart;
+#[doc(inline)]
+pub use error::Error;
+#[cfg(not(target_arch = "wasm32"))]
+pub use native::ChartWidget;
+#[cfg(target_arch = "wasm32")]
+pub use web::ChartWidget;
+
 #[doc(no_inline)]
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 #[doc(no_inline)]
