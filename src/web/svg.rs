@@ -351,7 +351,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             FontTransform::RotateAngle(angle) => angle,
         };
         let style = format!(
-            "border:0;padding:0;margin:0;position:fixed;left:-10000;\
+            "border:0;padding:0;margin:0;position:fixed;left:-10000px;\
             display:block;width:auto;height;z-index:-100;\
             font-size: {}px; font-family: {}; font-style: {}; transform: rotate({}deg);",
             style.size(),
