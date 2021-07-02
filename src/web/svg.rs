@@ -134,30 +134,17 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             .attr("y", upper_left.1.as_bump_str(bump))
             .attr("width", width.as_bump_str(bump))
             .attr("height", height.as_bump_str(bump))
-            .attr(
-                "stroke",
-                if !fill {
-                    color.as_bump_str(bump)
-                } else {
-                    "none"
-                },
-            )
-            .attr("stroke-width", style.stroke_width().as_bump_str(bump))
             .and(|node| {
-                if !fill {
-                    node.attr("stoke-opacity", opacity)
+                if fill {
+                    node.attr("stroke", "none")
+                        .attr("fill", color.as_bump_str(bump))
+                        .attr("fill-opacity", opacity)
                 } else {
-                    node.attr("fill-opacity", opacity)
+                    node.attr("stroke", color.as_bump_str(bump))
+                        .attr("stroke-width", style.stroke_width().as_bump_str(bump))
+                        .attr("stoke-opacity", opacity)
                 }
             })
-            .attr(
-                "fill",
-                if fill {
-                    color.as_bump_str(bump)
-                } else {
-                    "none"
-                },
-            )
             .finish();
         self.nodes.push(node);
         Ok(())
@@ -211,30 +198,17 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             .attr("cx", center.0.as_bump_str(bump))
             .attr("cy", center.1.as_bump_str(bump))
             .attr("r", radius.as_bump_str(bump))
-            .attr(
-                "stroke",
-                if !fill {
-                    color.as_bump_str(bump)
-                } else {
-                    "none"
-                },
-            )
-            .attr("stroke-width", style.stroke_width().as_bump_str(bump))
             .and(|node| {
-                if !fill {
-                    node.attr("stoke-opacity", opacity)
+                if fill {
+                    node.attr("stroke", "none")
+                        .attr("fill", color.as_bump_str(bump))
+                        .attr("fill-opacity", opacity)
                 } else {
-                    node.attr("fill-opacity", opacity)
+                    node.attr("stroke", color.as_bump_str(bump))
+                        .attr("stroke-width", style.stroke_width().as_bump_str(bump))
+                        .attr("stoke-opacity", opacity)
                 }
             })
-            .attr(
-                "fill",
-                if fill {
-                    color.as_bump_str(bump)
-                } else {
-                    "none"
-                },
-            )
             .finish();
         self.nodes.push(node);
 
@@ -279,6 +253,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         if color.alpha == 0.0 {
             return Ok(());
         }
+        //super::log(&format!("pos:{},{}:{}", pos.0, pos.1, content));
         let bump = self.bump;
         let (width, height) = self.estimate_text_size(content, style)?;
         let width = width as i32;
@@ -303,14 +278,15 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             text_anchor::HPos::Right => -width,
             text_anchor::HPos::Center => -width / 2,
         };
+        //baseline aligned
         let dy: i32 = match style.anchor().v_pos {
-            text_anchor::VPos::Top => height / 2,
-            text_anchor::VPos::Bottom => height + height / 2,
-            text_anchor::VPos::Center => height / 2,
+            text_anchor::VPos::Top => 0,
+            text_anchor::VPos::Bottom => height * 2 / 3,
+            text_anchor::VPos::Center => height / 3,
         };
         let style = bumpalo::format!(
             in bump,
-            "font-size: {}px; font-family: {}; font-style: {}",
+            "font-size:{}px;font-family:{};font-style:{}",
             style.size(),
             style.family().as_str(),
             style.style().as_str()
@@ -352,8 +328,9 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         };
         let style = format!(
             "border:0;padding:0;margin:0;position:fixed;left:-10000px;\
-            display:block;width:auto;height;z-index:-100;\
-            font-size: {}px; font-family: {}; font-style: {}; transform: rotate({}deg);",
+            display:block;width:auto;height:auto;z-index:-100;\
+            font-size:{}px;font-family:{};font-style:{};\
+            transform: rotate({}deg);",
             style.size(),
             style.family().as_str(),
             style.style().as_str(),
