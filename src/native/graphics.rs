@@ -1,3 +1,9 @@
+// plotters-iced
+//
+// Iced backend for Plotters
+// Copyright: 2021, Joylei <leingliu@gmail.com>
+// License: MIT
+
 use super::backend::IcedChartBackend;
 use super::native::Renderer as ChartRenderer;
 use iced_graphics::{backend, canvas, canvas::Cursor, Backend, Primitive, Renderer};

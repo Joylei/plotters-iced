@@ -1,3 +1,9 @@
+// plotters-iced
+//
+// Iced backend for Plotters
+// Copyright: 2021, Joylei <leingliu@gmail.com>
+// License: MIT
+
 use crate::Chart;
 use iced_native::{
     event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Size, Widget,

@@ -1,3 +1,9 @@
+// plotters-iced
+//
+// Iced backend for Plotters
+// Copyright: 2021, Joylei <leingliu@gmail.com>
+// License: MIT
+
 #[cfg(not(target_arch = "wasm32"))]
 use iced_graphics::canvas::{Cursor, Event, Frame, Geometry};
 #[cfg(not(target_arch = "wasm32"))]
