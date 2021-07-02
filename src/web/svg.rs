@@ -8,12 +8,14 @@ use plotters_backend::{
     text_anchor, BackendColor, BackendCoord, BackendStyle, BackendTextStyle, DrawingBackend,
     DrawingErrorKind, FontTransform,
 };
+use std::cell::RefCell;
 
 pub(crate) struct SvgBackend<'b, 'n> {
     size: (u32, u32),
     bump: &'b bumpalo::Bump,
     nodes: &'n mut Vec<dodrio::Node<'b>>,
     div: web_sys::Element,
+    lru: RefCell<lru::LruCache<std::string::String, (u32, u32)>>,
 }
 
 impl<'b, 'n> SvgBackend<'b, 'n> {
@@ -37,6 +39,7 @@ impl<'b, 'n> SvgBackend<'b, 'n> {
             bump,
             nodes,
             div,
+            lru: RefCell::new(lru::LruCache::new(100)),
         }
     }
 }
@@ -326,6 +329,17 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             FontTransform::Rotate270 => 270 as f32,
             FontTransform::RotateAngle(angle) => angle,
         };
+        let key = format!(
+            "{}{}{}{}{}",
+            style.size(),
+            style.family().as_str(),
+            style.style().as_str(),
+            angle,
+            text
+        );
+        if let Some(v) = self.lru.borrow_mut().get(&key) {
+            return Ok(*v);
+        }
         let style = format!(
             "border:0;padding:0;margin:0;position:fixed;left:-10000px;\
             display:block;width:auto;height:auto;z-index:-100;\
@@ -341,6 +355,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         let rect = self.div.get_bounding_client_rect();
         let size = (rect.width().ceil() as u32, rect.height().ceil() as u32);
         //super::log(&format!("{},{}:{}", size.0, size.1, text));
+        self.lru.borrow_mut().put(key, size);
         Ok(size)
     }
 
