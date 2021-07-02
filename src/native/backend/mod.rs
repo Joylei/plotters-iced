@@ -89,6 +89,9 @@ where
         point: BackendCoord,
         color: BackendColor,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if color.alpha == 0.0 {
+            return Ok(());
+        }
         self.frame
             .fill_rectangle(point.cvt_point(), Size::new(1.0, 1.0), cvt_color(&color));
         Ok(())
@@ -100,6 +103,9 @@ where
         to: BackendCoord,
         style: &S,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         let line = canvas::Path::line(from.cvt_point(), to.cvt_point());
         self.frame.stroke(&line, cvt_stroke(style));
         Ok(())
@@ -112,6 +118,9 @@ where
         style: &S,
         fill: bool,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         let height = (bottom_right.0 - upper_left.0) as f32;
         let width = (bottom_right.1 - upper_left.1) as f32;
         let upper_left = upper_left.cvt_point();
@@ -134,6 +143,9 @@ where
         path: I,
         style: &S,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         let path = canvas::Path::new(move |builder| {
             for (i, point) in path.into_iter().enumerate() {
                 if i > 0 {
@@ -155,6 +167,9 @@ where
         style: &S,
         fill: bool,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         if fill {
             let circle = canvas::Path::circle(center.cvt_point(), radius as f32);
             self.frame.fill(&circle, cvt_color(&style.color()));
@@ -171,6 +186,9 @@ where
         vert: I,
         style: &S,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         // Paint a simplified path, where empty areas are removed and un-necessary points are \
         //   cleared. This is required for triangulation to work properly, and it reduces \
         //   the number of triangles on screen to a strict minimum.
@@ -217,6 +235,9 @@ where
         style: &S,
         pos: BackendCoord,
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
         let horizontal_alignment = match style.anchor().h_pos {
             text_anchor::HPos::Left => HorizontalAlignment::Left,
             text_anchor::HPos::Right => HorizontalAlignment::Right,
