@@ -121,8 +121,8 @@ where
         if style.color().alpha == 0.0 {
             return Ok(());
         }
-        let height = (bottom_right.0 - upper_left.0) as f32;
-        let width = (bottom_right.1 - upper_left.1) as f32;
+        let height = (bottom_right.1 - upper_left.1) as f32;
+        let width = (bottom_right.0 - upper_left.0) as f32;
         let upper_left = upper_left.cvt_point();
         if fill {
             self.frame.fill_rectangle(
