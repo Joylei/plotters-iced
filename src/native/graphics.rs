@@ -6,6 +6,7 @@
 
 use super::backend::IcedChartBackend;
 use super::native::Renderer as ChartRenderer;
+use crate::Chart;
 use iced_graphics::{backend, canvas, canvas::Cursor, Backend, Primitive, Renderer};
 use iced_native::{event, mouse::Interaction, Font, Point, Rectangle, Vector};
 use plotters::prelude::DrawingArea;
@@ -24,7 +25,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         _viewport: &Rectangle,
     ) -> Self::Output
     where
-        C: crate::Chart<Message>,
+        C: Chart<Message>,
     {
         let bounds = layout.bounds();
         let geometry = chart.draw(bounds.size(), |frame| {
@@ -43,7 +44,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         )
     }
 
-    fn on_event<Message, C: crate::Chart<Message>>(
+    fn on_event<Message, C: Chart<Message>>(
         &self,
         chart: &mut C,
         event: iced_native::Event,
