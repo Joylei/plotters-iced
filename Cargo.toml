@@ -27,7 +27,7 @@ iced_web = "0.4"
 dodrio = "0.2"
 web-sys = { version="0.3", features=["Window", "Document", "Element", "HtmlElement", "DomRect"] }
 wasm-bindgen = "0.2.69" #align with iced_web
-lru = "0.6"
+lru = "0.7"
 
 [build-dependencies]
 cc = "1.0"
@@ -42,4 +42,4 @@ iced = { version="0.3", features=["canvas", "tokio"] }
 chrono = { version="0.4", default-features=false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-sysinfo = { version="0.19", default_features=false }
+sysinfo = { version="0.20", default_features=false }
