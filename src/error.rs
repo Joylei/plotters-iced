@@ -5,7 +5,7 @@
 // License: MIT
 
 #[derive(Debug)]
-/// Indicates that some error occured within the Iced backend
+/// Indicates that some error occurred within the Iced backend
 pub enum Error {}
 
 impl std::fmt::Display for Error {
