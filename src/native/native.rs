@@ -12,23 +12,23 @@ use plotters_backend::{FontFamily, FontStyle};
 use std::{hash::Hash, marker::PhantomData};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
-pub struct ChartWidget<'a, Message, C>
+pub struct ChartWidget<Message, C>
 where
     C: Chart<Message>,
 {
-    chart: &'a mut C,
+    chart: C,
     width: Length,
     height: Length,
     font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
     _marker: PhantomData<Message>,
 }
 
-impl<'a, Message, C> ChartWidget<'a, Message, C>
+impl<'a, Message, C> ChartWidget<Message, C>
 where
-    C: Chart<Message>,
+    C: Chart<Message> + 'a,
 {
     #[inline]
-    pub fn new(chart: &'a mut C) -> Self {
+    pub fn new(chart: C) -> Self {
         Self {
             chart,
             width: Length::Fill,
@@ -60,7 +60,7 @@ where
     }
 }
 
-impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<'a, Message, C>
+impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<Message, C>
 where
     C: Chart<Message>,
     Renderer: self::Renderer,
@@ -98,7 +98,7 @@ where
         viewport: &Rectangle,
     ) -> Renderer::Output {
         renderer.draw_chart(
-            self.chart,
+            &self.chart,
             &self.font_resolver,
             defaults,
             layout,
@@ -118,7 +118,7 @@ where
         messages: &mut Vec<Message>,
     ) -> event::Status {
         renderer.on_event(
-            self.chart,
+            &mut self.chart,
             event,
             layout,
             cursor_position,
@@ -160,25 +160,25 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
     ) -> event::Status;
 }
 
-impl<'a, Message, Renderer, C> From<ChartWidget<'a, Message, C>> for Element<'a, Message, Renderer>
+impl<'a, Message, Renderer, C> From<ChartWidget<Message, C>> for Element<'a, Message, Renderer>
 where
     Message: 'a,
-    C: Chart<Message>,
+    C: Chart<Message> + 'a,
     Renderer: self::Renderer,
 {
     #[inline]
-    fn from(widget: ChartWidget<'a, Message, C>) -> Self {
+    fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
     }
 }
 
-impl<'a, Message, C> From<&'a mut C> for ChartWidget<'a, Message, C>
+impl<'a, Message, C> From<C> for ChartWidget<Message, C>
 where
     Message: 'static,
     C: Chart<Message>,
 {
     #[inline]
-    fn from(chart: &'a mut C) -> ChartWidget<'a, Message, C> {
+    fn from(chart: C) -> ChartWidget<Message, C> {
         ChartWidget::new(chart)
     }
 }

@@ -12,7 +12,7 @@ use iced_native::{event, mouse::Interaction, Font, Point, Rectangle, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
-pub type ChartWidget<'a, Message, C> = super::native::ChartWidget<'a, Message, C>;
+pub type ChartWidget<Message, C> = super::native::ChartWidget<Message, C>;
 
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
     fn draw_chart<Message, C>(

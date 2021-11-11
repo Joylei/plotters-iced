@@ -16,6 +16,32 @@ use plotters_backend::DrawingBackend;
 #[cfg(target_arch = "wasm32")]
 use dummy::*;
 
+impl<Message, C> Chart<Message> for &mut C
+where
+    C: Chart<Message>,
+{
+    fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>) {
+        C::build_chart(self, builder)
+    }
+
+    fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
+        C::draw_chart(self, root)
+    }
+
+    fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
+        C::draw(self, size, f)
+    }
+
+    fn update(
+        &mut self,
+        event: Event,
+        bounds: Rectangle,
+        cursor: Cursor,
+    ) -> (Status, Option<Message>) {
+        C::update(self, event, bounds, cursor)
+    }
+}
+
 /// Chart View Model
 ///
 /// use it with [`ChartWidget`].
@@ -65,6 +91,7 @@ pub trait Chart<Message> {
     ///          }
     ///      }
     /// }
+    /// ```
     #[inline]
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         let builder = ChartBuilder::on(&root);
