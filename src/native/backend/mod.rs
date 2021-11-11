@@ -170,11 +170,12 @@ where
         if style.color().alpha == 0.0 {
             return Ok(());
         }
+
+        let circle = canvas::Path::circle(center.cvt_point(), radius as f32);
+
         if fill {
-            let circle = canvas::Path::circle(center.cvt_point(), radius as f32);
             self.frame.fill(&circle, cvt_color(&style.color()));
         } else {
-            let circle = canvas::Path::circle(center.cvt_point(), radius as f32);
             self.frame.stroke(&circle, cvt_stroke(style));
         }
 

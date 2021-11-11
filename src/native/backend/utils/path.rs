@@ -36,12 +36,12 @@ impl<I: Iterator<Item = PathSimplifierPointInner>> Iterator for PathSimplifier<I
 
     fn next(&mut self) -> Option<Self::Item> {
         // Branch to source points iterator (exhaust next group)
-        while let Some(point) = self.source_points.next() {
+        for point in &mut self.source_points {
+            // Retain current point as 'last point'
+            self.last_point = Some(point);
+
             // Backtrack in points
             if let Some(point_before) = self.last_point {
-                // Retain current point as 'last point'
-                self.last_point = Some(point);
-
                 // De-duplicate points
                 if point_before != point {
                     let mut do_yield = false;
@@ -100,9 +100,6 @@ impl<I: Iterator<Item = PathSimplifierPointInner>> Iterator for PathSimplifier<I
                         return Some([point_before[0] as f64, point_before[1] as f64]);
                     }
                 }
-            } else {
-                // Retain first point as 'last point'
-                self.last_point = Some(point);
             }
         }
 

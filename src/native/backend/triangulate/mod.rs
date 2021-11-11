@@ -41,7 +41,7 @@ pub(crate) struct Polygon {
     ll: *mut c_void,
 }
 
-pub(crate) struct CDT {
+pub(crate) struct Cdt {
     ll: *mut c_void,
 }
 
@@ -49,7 +49,7 @@ pub(crate) struct TriangleVec {
     ll: *mut c_void,
 
     #[allow(dead_code)]
-    cdt: CDT,
+    cdt: Cdt,
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -94,10 +94,10 @@ impl Drop for Polygon {
     }
 }
 
-impl CDT {
-    pub(crate) fn new(polygon: Polygon) -> CDT {
+impl Cdt {
+    pub(crate) fn new(polygon: Polygon) -> Cdt {
         unsafe {
-            let rv = CDT {
+            let rv = Cdt {
                 ll: p2t_cdt_new(polygon.ll),
             };
 
@@ -118,7 +118,7 @@ impl CDT {
     }
 }
 
-impl Drop for CDT {
+impl Drop for Cdt {
     fn drop(&mut self) {
         unsafe {
             p2t_cdt_free(self.ll);
@@ -164,5 +164,5 @@ pub(crate) fn triangulate_points<'a, I>(points: I) -> TriangleVec
 where
     I: Iterator<Item = &'a [Scalar; 2]>,
 {
-    CDT::new(Polygon::from_iterator(points)).triangulate()
+    Cdt::new(Polygon::from_iterator(points)).triangulate()
 }
