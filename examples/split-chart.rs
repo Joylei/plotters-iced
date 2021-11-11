@@ -31,8 +31,8 @@ extern crate iced;
 extern crate plotters;
 
 use iced::{
-    executor, Align, Application, Clipboard, Column, Command, Container, Element, Font, Length,
-    Settings, Subscription,
+    executor, Align, Application, Clipboard, Column, Command, Container, Element, Length, Settings,
+    Subscription,
 };
 use plotters::{coord::Shift, prelude::*};
 use plotters_backend::DrawingBackend;
