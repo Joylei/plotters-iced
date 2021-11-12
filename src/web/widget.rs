@@ -12,7 +12,7 @@ use plotters_backend::{FontFamily, FontStyle};
 use std::marker::PhantomData;
 
 macro_rules! console_log {
-    ($($t:tt)*) => (unsafe {super::log(&format_args!($($t)*).to_string()) })
+    ($($t:tt)*) => {super::log(&format_args!($($t)*).to_string())}
 }
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s

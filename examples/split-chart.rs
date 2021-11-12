@@ -15,7 +15,7 @@ cargo install -f wasm-bindgen-cli --version 0.2.69
 Then build the code and generate wasm bindings
 ```sh
 cargo build --example split-chart --target wasm32-unknown-unknown
-wasm-bindgen ../target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
+wasm-bindgen ./target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
 ```
 
 Then, use host the folder examples with a http server
@@ -48,6 +48,7 @@ fn main() {
     .unwrap();
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 enum Message {
     Tick,
