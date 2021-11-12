@@ -5,6 +5,7 @@
 // License: MIT
 
 mod svg;
+mod text;
 mod widget;
 
 use dodrio::bumpalo;

@@ -4,7 +4,7 @@
 // Copyright: 2021, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use super::AsBumpStr;
+use super::{text::Measurement, AsBumpStr};
 use crate::{
     utils::{AndExt, RotateAngle},
     Error,
@@ -17,64 +17,43 @@ use plotters_backend::{
     text_anchor, BackendColor, BackendCoord, BackendStyle, BackendTextStyle, DrawingBackend,
     DrawingErrorKind,
 };
-use std::cell::RefCell;
 
 pub(crate) struct SvgBackend<'b, 'n> {
     size: (u32, u32),
     bump: &'b bumpalo::Bump,
     nodes: &'n mut Vec<dodrio::Node<'b>>,
-    div: web_sys::Element,
-    lru: RefCell<lru::LruCache<std::string::String, (u32, u32)>>,
+    measurement: Measurement,
 }
 
 impl<'b, 'n> SvgBackend<'b, 'n> {
+    #[inline]
     pub fn new(
         bump: &'b bumpalo::Bump,
         size: (u32, u32),
         nodes: &'n mut Vec<dodrio::Node<'b>>,
     ) -> Self {
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let body = document.body().unwrap();
-        let div = document.create_element("div").unwrap();
-        div.set_attribute(
-            "style",
-            "border:0;padding:0;margin:0;display:none;z-index:-100;",
-        )
-        .unwrap();
-        body.append_child(&div).unwrap();
         Self {
             size,
             bump,
             nodes,
-            div,
-            lru: RefCell::new(lru::LruCache::new(100)),
+            measurement: Measurement::new(),
         }
-    }
-}
-
-impl<'b, 'n> Drop for SvgBackend<'b, 'n> {
-    fn drop(&mut self) {
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let body = document.body().unwrap();
-        body.remove_child(&self.div).unwrap();
     }
 }
 
 impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
     type ErrorType = Error;
-    #[inline]
+    #[inline(always)]
     fn get_size(&self) -> (u32, u32) {
         self.size
     }
 
-    #[inline]
+    #[inline(always)]
     fn ensure_prepared(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }
 
-    #[inline]
+    #[inline(always)]
     fn present(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }
@@ -102,6 +81,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         Ok(())
     }
 
+    #[inline]
     fn draw_line<S: BackendStyle>(
         &mut self,
         from: BackendCoord,
@@ -126,6 +106,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         Ok(())
     }
 
+    #[inline]
     fn draw_rect<S: BackendStyle>(
         &mut self,
         upper_left: BackendCoord,
@@ -317,40 +298,15 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         Ok(())
     }
 
+    #[inline(always)]
     fn estimate_text_size<S: BackendTextStyle>(
         &self,
         text: &str,
         style: &S,
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
-        let angle = style.transform().angle().unwrap_or_default();
-        let key = format!(
-            "{}{}{}{}{}",
-            style.size(),
-            style.family().as_str(),
-            style.style().as_str(),
-            angle,
-            text
-        );
-        if let Some(v) = self.lru.borrow_mut().get(&key) {
-            return Ok(*v);
-        }
-        let style = format!(
-            "border:0;padding:0;margin:0;position:fixed;left:-10000px;\
-            display:block;width:auto;height:auto;z-index:-100;\
-            font-size:{}px;font-family:{};font-style:{};\
-            transform: rotate({}deg);",
-            style.size(),
-            style.family().as_str(),
-            style.style().as_str(),
-            angle
-        );
-        self.div.set_attribute("style", &style).unwrap();
-        self.div.set_text_content(Some(text));
-        let rect = self.div.get_bounding_client_rect();
-        let size = (rect.width().ceil() as u32, rect.height().ceil() as u32);
-        //super::log(&format!("{},{}:{}", size.0, size.1, text));
-        self.lru.borrow_mut().put(key, size);
-        Ok(size)
+        self.measurement
+            .measure(text, style)
+            .map_err(|e| DrawingErrorKind::DrawingError(e.into()))
     }
 
     #[inline(always)]
@@ -370,6 +326,8 @@ mod svg_builder {
     use dodrio::bumpalo::{self, Bump};
     use dodrio::{Attribute, Listener, Node};
 
+    const SVG_NAMESPACE: &str = "http://www.w3.org/2000/svg";
+
     #[allow(unused)]
     #[inline(always)]
     pub fn g<'a, B>(
@@ -383,7 +341,7 @@ mod svg_builder {
     where
         B: Into<&'a Bump>,
     {
-        ElementBuilder::new(bump, "g").namespace(Some("http://www.w3.org/2000/svg"))
+        ElementBuilder::new(bump, "g").namespace(Some(SVG_NAMESPACE))
     }
 
     #[inline(always)]
@@ -398,7 +356,7 @@ mod svg_builder {
     where
         B: Into<&'a Bump>,
     {
-        ElementBuilder::new(bump, "text").namespace(Some("http://www.w3.org/2000/svg"))
+        ElementBuilder::new(bump, "text").namespace(Some(SVG_NAMESPACE))
     }
 
     #[allow(unused)]
@@ -414,6 +372,6 @@ mod svg_builder {
     where
         B: Into<&'a Bump>,
     {
-        ElementBuilder::new(bump, "foreignObject").namespace(Some("http://www.w3.org/2000/svg"))
+        ElementBuilder::new(bump, "foreignObject").namespace(Some(SVG_NAMESPACE))
     }
 }
