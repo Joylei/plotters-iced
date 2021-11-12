@@ -42,4 +42,4 @@ iced = { version="0.3", features=["canvas", "tokio"] }
 chrono = { version="0.4", default-features=false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-sysinfo = { version="0.20", default_features=false }
+sysinfo = { version="0.21", default_features=false }
