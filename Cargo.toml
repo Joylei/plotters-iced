@@ -11,6 +11,7 @@ documentation = "https://docs.rs/crate/plotters-iced/"
 keywords = ["plotters", "chart", "plot", "iced", "backend"]
 categories = ["visualization"]
 authors = ["Joylei <leingliu@gmail.com>"]
+resolver = "2"
 
 [dependencies]
 plotters = { version="0.3", default_features=false }
