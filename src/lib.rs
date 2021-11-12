@@ -72,3 +72,14 @@ pub use web::ChartWidget;
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 #[doc(no_inline)]
 pub use plotters_backend::DrawingBackend;
+
+impl<'a, Message, C> From<C> for ChartWidget<Message, C>
+where
+    Message: 'static,
+    C: Chart<Message>,
+{
+    #[inline]
+    fn from(chart: C) -> ChartWidget<Message, C> {
+        ChartWidget::new(chart)
+    }
+}

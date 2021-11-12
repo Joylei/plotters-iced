@@ -20,18 +20,20 @@ impl<Message, C> Chart<Message> for &mut C
 where
     C: Chart<Message>,
 {
+    #[inline(always)]
     fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>) {
         C::build_chart(self, builder)
     }
-
+    #[inline(always)]
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         C::draw_chart(self, root)
     }
-
+    #[inline(always)]
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         C::draw(self, size, f)
     }
 
+    #[inline(always)]
     fn update(
         &mut self,
         event: Event,

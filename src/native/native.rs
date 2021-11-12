@@ -171,14 +171,3 @@ where
         Element::new(widget)
     }
 }
-
-impl<'a, Message, C> From<C> for ChartWidget<Message, C>
-where
-    Message: 'static,
-    C: Chart<Message>,
-{
-    #[inline]
-    fn from(chart: C) -> ChartWidget<Message, C> {
-        ChartWidget::new(chart)
-    }
-}
