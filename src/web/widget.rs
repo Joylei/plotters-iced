@@ -16,22 +16,22 @@ macro_rules! console_log {
 }
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
-pub struct ChartWidget<'a, Message, C>
+pub struct ChartWidget<Message, C>
 where
     C: Chart<Message>,
 {
-    chart: &'a mut C,
+    chart: C,
     width: u16,
     height: u16,
     _marker: PhantomData<Message>,
 }
 
-impl<'a, Message, C> ChartWidget<'a, Message, C>
+impl<Message, C> ChartWidget<Message, C>
 where
     C: Chart<Message>,
 {
     #[inline]
-    pub fn new(chart: &'a mut C) -> Self {
+    pub fn new(chart: C) -> Self {
         Self {
             chart,
             width: 100,
@@ -75,7 +75,7 @@ where
     }
 }
 
-impl<'a, Message, C> Widget<Message> for ChartWidget<'a, Message, C>
+impl<'a, Message, C> Widget<Message> for ChartWidget<Message, C>
 where
     C: Chart<Message>,
     Message: 'static,
@@ -94,7 +94,7 @@ where
         self.chart.draw_chart(backend.into());
 
         // use ptr as id
-        let ptr = self.chart as *const C;
+        let ptr = &self.chart as *const C;
         let mut h = DefaultHasher::new();
         ptr.hash(&mut h);
         let id = bumpalo::format!(
@@ -121,13 +121,13 @@ where
     }
 }
 
-impl<'a, Message, C> From<ChartWidget<'a, Message, C>> for Element<'a, Message>
+impl<'a, Message, C> From<ChartWidget<Message, C>> for Element<'a, Message>
 where
     Message: 'static,
-    C: Chart<Message>,
+    C: Chart<Message> + 'a,
 {
     #[inline]
-    fn from(widget: ChartWidget<'a, Message, C>) -> Self {
+    fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
     }
 }
