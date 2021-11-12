@@ -58,7 +58,7 @@ impl<'b, 'n> Drop for SvgBackend<'b, 'n> {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
         let body = document.body().unwrap();
-        body.remove_child(&self.div).ok();
+        body.remove_child(&self.div).unwrap();
     }
 }
 
