@@ -4,15 +4,18 @@
 // Copyright: 2021, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use super::{AndExt, AsBumpStr};
-use crate::Error;
+use super::AsBumpStr;
+use crate::{
+    utils::{AndExt, RotateAngle},
+    Error,
+};
 use dodrio::{
     builder::*,
     bumpalo::{self, collections::String},
 };
 use plotters_backend::{
     text_anchor, BackendColor, BackendCoord, BackendStyle, BackendTextStyle, DrawingBackend,
-    DrawingErrorKind, FontTransform,
+    DrawingErrorKind,
 };
 use std::cell::RefCell;
 
@@ -267,18 +270,9 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         let (width, height) = self.estimate_text_size(content, style)?;
         let width = width as i32;
         let height = height as i32;
-        let rotate = match style.transform() {
-            FontTransform::None => "",
-            FontTransform::Rotate90 => bumpalo::format!(
-                in bump, "rotate(90, {}, {})", pos.0, pos.1)
-            .into_bump_str(),
-            FontTransform::Rotate180 => bumpalo::format!(
-                in bump, "rotate(180, {}, {})", pos.0, pos.1)
-            .into_bump_str(),
-            FontTransform::Rotate270 => bumpalo::format!(
-                in bump, "rotate(270, {}, {})", pos.0, pos.1)
-            .into_bump_str(),
-            FontTransform::RotateAngle(angle) => bumpalo::format!(
+        let rotate = match style.transform().angle() {
+            None => "",
+            Some(angle) => bumpalo::format!(
                 in bump, "rotate({}, {}, {})", angle, pos.0, pos.1)
             .into_bump_str(),
         };
@@ -289,8 +283,8 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         };
         //baseline aligned
         let dy: i32 = match style.anchor().v_pos {
-            text_anchor::VPos::Top => 0,
-            text_anchor::VPos::Bottom => height * 2 / 3,
+            text_anchor::VPos::Top => height * 2 / 3,
+            text_anchor::VPos::Bottom => 0,
             text_anchor::VPos::Center => height / 3,
         };
         let style = bumpalo::format!(
@@ -328,13 +322,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         text: &str,
         style: &S,
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
-        let angle = match style.transform() {
-            FontTransform::None => 0 as f32,
-            FontTransform::Rotate90 => 90 as f32,
-            FontTransform::Rotate180 => 180 as f32,
-            FontTransform::Rotate270 => 270 as f32,
-            FontTransform::RotateAngle(angle) => angle,
-        };
+        let angle = style.transform().angle().unwrap_or_default();
         let key = format!(
             "{}{}{}{}{}",
             style.size(),
@@ -373,7 +361,6 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         _src: &[u8],
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
         // Not supported yet (rendering ignored)
-
         Ok(())
     }
 }

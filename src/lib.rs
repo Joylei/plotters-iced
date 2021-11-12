@@ -56,6 +56,7 @@ mod chart;
 mod error;
 #[cfg(not(target_arch = "wasm32"))]
 mod native;
+mod utils;
 #[cfg(target_arch = "wasm32")]
 mod web;
 

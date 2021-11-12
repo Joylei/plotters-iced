@@ -58,19 +58,3 @@ impl AsBumpStr for BackendColor {
         .into_bump_str()
     }
 }
-
-trait AndExt {
-    fn and<F: Fn(Self) -> Self>(self, f: F) -> Self
-    where
-        Self: Sized;
-}
-
-impl<T> AndExt for T {
-    #[inline(always)]
-    fn and<F: Fn(Self) -> Self>(self, f: F) -> Self
-    where
-        Self: Sized,
-    {
-        f(self)
-    }
-}
