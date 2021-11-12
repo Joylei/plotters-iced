@@ -22,6 +22,7 @@ pub(crate) struct PathSimplifier<I: Iterator<Item = PathSimplifierPointInner>> {
 }
 
 impl<I: Iterator<Item = PathSimplifierPointInner>> PathSimplifier<I> {
+    #[inline(always)]
     pub(crate) fn from(source_points: I) -> Self {
         Self {
             source_points,
@@ -34,6 +35,7 @@ impl<I: Iterator<Item = PathSimplifierPointInner>> PathSimplifier<I> {
 impl<I: Iterator<Item = PathSimplifierPointInner>> Iterator for PathSimplifier<I> {
     type Item = PathSimplifierPointOuter;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         // Branch to source points iterator (exhaust next group)
         for point in &mut self.source_points {

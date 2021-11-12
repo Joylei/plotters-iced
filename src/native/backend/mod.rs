@@ -51,6 +51,7 @@ where
     B: Backend + backend::Text,
     F: Fn(FontFamily, FontStyle) -> Font,
 {
+    #[inline]
     pub fn new(frame: &'a mut canvas::Frame, backend: &'a B, font_resolver: &'a F) -> Self {
         Self {
             frame,
@@ -97,6 +98,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn draw_line<S: BackendStyle>(
         &mut self,
         from: BackendCoord,
@@ -111,6 +113,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn draw_rect<S: BackendStyle>(
         &mut self,
         upper_left: BackendCoord,
@@ -138,6 +141,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn draw_path<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
         &mut self,
         path: I,
@@ -160,6 +164,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn draw_circle<S: BackendStyle>(
         &mut self,
         center: BackendCoord,
@@ -182,6 +187,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn fill_polygon<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
         &mut self,
         vert: I,
@@ -230,6 +236,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn draw_text<S: BackendTextStyle>(
         &mut self,
         text: &str,
@@ -286,6 +293,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn estimate_text_size<S: BackendTextStyle>(
         &self,
         text: &str,
@@ -299,6 +307,7 @@ where
         Ok((size.0 as u32, size.1 as u32))
     }
 
+    #[inline]
     fn blit_bitmap(
         &mut self,
         _pos: BackendCoord,

@@ -365,6 +365,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         Ok(size)
     }
 
+    #[inline(always)]
     fn blit_bitmap(
         &mut self,
         _pos: BackendCoord,
@@ -383,6 +384,7 @@ mod svg_builder {
     use dodrio::{Attribute, Listener, Node};
 
     #[allow(unused)]
+    #[inline(always)]
     pub fn g<'a, B>(
         bump: B,
     ) -> ElementBuilder<
@@ -397,6 +399,7 @@ mod svg_builder {
         ElementBuilder::new(bump, "g").namespace(Some("http://www.w3.org/2000/svg"))
     }
 
+    #[inline(always)]
     pub fn text<'a, B>(
         bump: B,
     ) -> ElementBuilder<
@@ -412,6 +415,7 @@ mod svg_builder {
     }
 
     #[allow(unused)]
+    #[inline(always)]
     pub fn foreign_object<'a, B>(
         bump: B,
     ) -> ElementBuilder<

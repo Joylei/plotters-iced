@@ -27,7 +27,7 @@ impl<'a, Message, C> ChartWidget<Message, C>
 where
     C: Chart<Message> + 'a,
 {
-    #[inline]
+    #[inline(always)]
     pub fn new(chart: C) -> Self {
         Self {
             chart,
@@ -38,19 +38,19 @@ where
         }
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn width(mut self, width: Length) -> Self {
         self.width = width;
         self
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
         self
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn resolve_font(
         mut self,
         resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
@@ -65,17 +65,17 @@ where
     C: Chart<Message>,
     Renderer: self::Renderer,
 {
-    #[inline]
+    #[inline(always)]
     fn width(&self) -> Length {
         self.width
     }
 
-    #[inline]
+    #[inline(always)]
     fn height(&self) -> Length {
         self.height
     }
 
-    #[inline]
+    #[inline(always)]
     fn layout(
         &self,
         _renderer: &Renderer,
@@ -127,7 +127,7 @@ where
         )
     }
 
-    #[inline]
+    #[inline(always)]
     fn hash_layout(&self, state: &mut iced_native::Hasher) {
         struct Marker;
         std::any::TypeId::of::<Marker>().hash(state);
@@ -166,7 +166,7 @@ where
     C: Chart<Message> + 'a,
     Renderer: self::Renderer,
 {
-    #[inline]
+    #[inline(always)]
     fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
     }

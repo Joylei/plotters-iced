@@ -94,7 +94,7 @@ pub trait Chart<Message> {
     ///      }
     /// }
     /// ```
-    #[inline]
+    #[inline(always)]
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         let builder = ChartBuilder::on(&root);
         self.build_chart(builder);
@@ -116,7 +116,7 @@ pub trait Chart<Message> {
     ///      //...
     /// }
     /// ```
-    #[inline]
+    #[inline(always)]
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         let mut frame = Frame::new(size);
         f(&mut frame);
@@ -124,7 +124,7 @@ pub trait Chart<Message> {
     }
 
     #[allow(unused_variables)]
-    #[inline]
+    #[inline(always)]
     fn update(
         &mut self,
         event: Event,
@@ -148,9 +148,11 @@ pub mod dummy {
     pub struct Frame;
 
     impl Frame {
+        #[inline(always)]
         pub fn new(_size: Size) -> Self {
             Self
         }
+        #[inline(always)]
         pub fn into_geometry(self) -> Geometry {
             ()
         }

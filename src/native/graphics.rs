@@ -15,6 +15,7 @@ use plotters_backend::{FontFamily, FontStyle};
 pub type ChartWidget<Message, C> = super::native::ChartWidget<Message, C>;
 
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
+    #[inline]
     fn draw_chart<Message, C>(
         &self,
         chart: &C,
@@ -44,6 +45,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         )
     }
 
+    #[inline]
     fn on_event<Message, C: Chart<Message>>(
         &self,
         chart: &mut C,

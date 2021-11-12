@@ -7,11 +7,13 @@ use iced_graphics::canvas;
 use iced_native::{Color, Point};
 use plotters_backend::{BackendColor, BackendCoord, BackendStyle};
 
+#[inline(always)]
 pub(crate) fn cvt_color(color: &BackendColor) -> Color {
     let ((r, g, b), a) = (color.rgb, color.alpha);
     Color::from_rgba8(r, g, b, a as f32)
 }
 
+#[inline(always)]
 pub(crate) fn cvt_stroke<S: BackendStyle>(style: &S) -> canvas::Stroke {
     canvas::Stroke::default()
         .with_color(cvt_color(&style.color()))
@@ -23,12 +25,14 @@ pub(crate) trait CvtPoint {
 }
 
 impl CvtPoint for BackendCoord {
+    #[inline(always)]
     fn cvt_point(self) -> Point {
         Point::new(self.0 as f32, self.1 as f32)
     }
 }
 
 impl CvtPoint for [f64; 2] {
+    #[inline(always)]
     fn cvt_point(self) -> Point {
         Point::new(self[0] as f32, self[1] as f32)
     }

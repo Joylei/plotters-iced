@@ -15,6 +15,7 @@ pub(crate) struct ShapeSplitter {
 }
 
 impl ShapeSplitter {
+    #[inline]
     pub(crate) fn try_from(path: &[ShapeSplitterPoint]) -> Result<Self, ()> {
         // Only proceed if we have enough points to form at least a triangle
         if path.len() >= 3 {
@@ -37,6 +38,7 @@ impl ShapeSplitter {
     }
 
     #[allow(clippy::float_cmp)]
+    #[inline]
     pub(crate) fn collect(&mut self) -> Vec<Vec<ShapeSplitterPoint>> {
         let (mut closed_shapes, mut current_shape_index) = (vec![Vec::new()], 0);
 
@@ -89,6 +91,7 @@ impl ShapeSplitter {
     }
 
     #[allow(clippy::many_single_char_names, clippy::float_cmp)]
+    #[inline]
     fn intersects(
         line: &[ShapeSplitterPoint; 2],
         other: &[ShapeSplitterPoint; 2],
