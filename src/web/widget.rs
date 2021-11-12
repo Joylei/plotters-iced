@@ -30,6 +30,7 @@ impl<Message, C> ChartWidget<Message, C>
 where
     C: Chart<Message>,
 {
+    /// create chart widget
     #[inline(always)]
     pub fn new(chart: C) -> Self {
         Self {

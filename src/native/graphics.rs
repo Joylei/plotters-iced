@@ -12,6 +12,7 @@ use iced_native::{event, mouse::Interaction, Font, Point, Rectangle, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
+/// Chart container, turns [`Chart`]s to [`Widget`]s
 pub type ChartWidget<Message, C> = super::native::ChartWidget<Message, C>;
 
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {

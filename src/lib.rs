@@ -50,6 +50,7 @@
    ```
    See the [examples](https://github.com/Joylei/plotters-iced/tree/master/examples) for more details.
 */
+#![warn(missing_docs)]
 
 pub extern crate plotters_backend;
 mod chart;

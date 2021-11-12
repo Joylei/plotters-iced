@@ -123,6 +123,7 @@ pub trait Chart<Message> {
         frame.into_geometry()
     }
 
+    /// react on event
     #[allow(unused_variables)]
     #[inline(always)]
     fn update(
