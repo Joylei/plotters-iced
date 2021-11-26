@@ -95,17 +95,7 @@ where
         let backend = SvgBackend::new(bump, (self.width as u32, self.height as u32), &mut nodes);
         self.chart.draw_chart(backend.into());
 
-        // use ptr as id
-        let ptr = &self.chart as *const C;
-        let mut h = DefaultHasher::new();
-        ptr.hash(&mut h);
-        let id = bumpalo::format!(
-            in bump,
-            "chart-{}", h.finish()
-        )
-        .into_bump_str();
         let node = svg(bump)
-            .attr("id", id)
             .attr(
                 "style",
                 bumpalo::format!(
