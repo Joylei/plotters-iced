@@ -20,20 +20,20 @@ impl<Message, C> Chart<Message> for &mut C
 where
     C: Chart<Message>,
 {
-    #[inline(always)]
+    #[inline]
     fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>) {
         C::build_chart(self, builder)
     }
-    #[inline(always)]
+    #[inline]
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         C::draw_chart(self, root)
     }
-    #[inline(always)]
+    #[inline]
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         C::draw(self, size, f)
     }
 
-    #[inline(always)]
+    #[inline]
     fn update(
         &mut self,
         event: Event,
@@ -94,7 +94,7 @@ pub trait Chart<Message> {
     ///      }
     /// }
     /// ```
-    #[inline(always)]
+    #[inline]
     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
         let builder = ChartBuilder::on(&root);
         self.build_chart(builder);
@@ -116,7 +116,7 @@ pub trait Chart<Message> {
     ///      //...
     /// }
     /// ```
-    #[inline(always)]
+    #[inline]
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         let mut frame = Frame::new(size);
         f(&mut frame);
@@ -125,7 +125,7 @@ pub trait Chart<Message> {
 
     /// react on event
     #[allow(unused_variables)]
-    #[inline(always)]
+    #[inline]
     fn update(
         &mut self,
         event: Event,
@@ -149,11 +149,10 @@ pub mod dummy {
     pub struct Frame;
 
     impl Frame {
-        #[inline(always)]
         pub fn new(_size: Size) -> Self {
             Self
         }
-        #[inline(always)]
+
         pub fn into_geometry(self) -> Geometry {
             ()
         }

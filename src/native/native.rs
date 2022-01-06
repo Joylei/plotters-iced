@@ -87,17 +87,15 @@ where
     C: Chart<Message>,
     Renderer: self::Renderer,
 {
-    #[inline(always)]
     fn width(&self) -> Length {
         self.width
     }
 
-    #[inline(always)]
     fn height(&self) -> Length {
         self.height
     }
 
-    #[inline(always)]
+    #[inline]
     fn layout(
         &self,
         _renderer: &Renderer,
@@ -164,7 +162,7 @@ where
         )
     }
 
-    #[inline(always)]
+    #[inline]
     fn hash_layout(&self, state: &mut iced_native::Hasher) {
         struct Marker;
         std::any::TypeId::of::<Marker>().hash(state);
@@ -203,7 +201,6 @@ where
     C: Chart<Message> + 'a,
     Renderer: self::Renderer,
 {
-    #[inline(always)]
     fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
     }

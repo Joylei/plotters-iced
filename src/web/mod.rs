@@ -27,7 +27,7 @@ trait AsBumpStr {
 macro_rules! impl_as_bump_str {
     ($t:ident) => {
         impl AsBumpStr for $t {
-            #[inline(always)]
+            #[inline]
             fn as_bump_str<'b>(&self, bump: &'b bumpalo::Bump) -> &'b str {
                 bumpalo::format!(
                     in bump, "{}", self)
@@ -42,7 +42,7 @@ impl_as_bump_str!(i32);
 impl_as_bump_str!(u32);
 impl_as_bump_str!(f64);
 impl AsBumpStr for &str {
-    #[inline(always)]
+    #[inline]
     fn as_bump_str<'b>(&self, bump: &'b bumpalo::Bump) -> &'b str {
         bumpalo::format!(
             in bump, "{}", self)
@@ -51,7 +51,7 @@ impl AsBumpStr for &str {
 }
 
 impl AsBumpStr for BackendColor {
-    #[inline(always)]
+    #[inline]
     fn as_bump_str<'b>(&self, bump: &'b bumpalo::Bump) -> &'b str {
         let (r, g, b) = self.rgb;
         bumpalo::format!(

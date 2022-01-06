@@ -58,7 +58,6 @@ pub(crate) struct Triangle {
 }
 
 impl Polygon {
-    #[inline]
     pub(crate) fn new() -> Polygon {
         unsafe {
             Polygon {
@@ -67,7 +66,6 @@ impl Polygon {
         }
     }
 
-    #[inline]
     pub(crate) fn from_iterator<'a, I>(points: I) -> Polygon
     where
         I: Iterator<Item = &'a [Scalar; 2]>,
@@ -81,7 +79,7 @@ impl Polygon {
         rv
     }
 
-    #[inline(always)]
+    #[inline]
     pub(crate) fn add_point(&mut self, x: Scalar, y: Scalar) {
         unsafe {
             p2t_polyline_add_point(self.ll, x, y);
@@ -90,7 +88,6 @@ impl Polygon {
 }
 
 impl Drop for Polygon {
-    #[inline(always)]
     fn drop(&mut self) {
         unsafe {
             p2t_polyline_free(self.ll);
@@ -99,7 +96,6 @@ impl Drop for Polygon {
 }
 
 impl Cdt {
-    #[inline(always)]
     pub(crate) fn new(polygon: Polygon) -> Cdt {
         unsafe {
             let rv = Cdt {
@@ -112,7 +108,7 @@ impl Cdt {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     pub(crate) fn triangulate(self) -> TriangleVec {
         unsafe {
             p2t_cdt_triangulate(self.ll);
@@ -125,7 +121,6 @@ impl Cdt {
 }
 
 impl Drop for Cdt {
-    #[inline(always)]
     fn drop(&mut self) {
         unsafe {
             p2t_cdt_free(self.ll);
@@ -134,7 +129,6 @@ impl Drop for Cdt {
 }
 
 impl TriangleVec {
-    #[inline(always)]
     pub(crate) fn size(&self) -> usize {
         unsafe { p2t_triangles_count(self.ll) as usize }
     }
@@ -162,7 +156,6 @@ impl TriangleVec {
 }
 
 impl Drop for TriangleVec {
-    #[inline(always)]
     fn drop(&mut self) {
         unsafe {
             p2t_triangles_free(self.ll);
@@ -170,7 +163,7 @@ impl Drop for TriangleVec {
     }
 }
 
-#[inline(always)]
+#[inline]
 pub(crate) fn triangulate_points<'a, I>(points: I) -> TriangleVec
 where
     I: Iterator<Item = &'a [Scalar; 2]>,

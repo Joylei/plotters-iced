@@ -22,7 +22,6 @@ pub(crate) struct PathSimplifier<I: Iterator<Item = PathSimplifierPointInner>> {
 }
 
 impl<I: Iterator<Item = PathSimplifierPointInner>> PathSimplifier<I> {
-    #[inline(always)]
     pub(crate) fn from(source_points: I) -> Self {
         Self {
             source_points,

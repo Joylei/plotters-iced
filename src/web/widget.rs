@@ -31,7 +31,6 @@ where
     C: Chart<Message>,
 {
     /// create chart widget
-    #[inline(always)]
     pub fn new(chart: C) -> Self {
         Self {
             chart,
@@ -42,7 +41,7 @@ where
     }
 
     /// only support fixed size for wasm
-    #[inline(always)]
+    #[inline]
     pub fn width(mut self, width: Length) -> Self {
         match width {
             Length::Units(width) => {
@@ -56,7 +55,7 @@ where
     }
 
     /// only support fixed size for wasm
-    #[inline(always)]
+    #[inline]
     pub fn height(mut self, height: Length) -> Self {
         match height {
             Length::Units(height) => {
@@ -70,7 +69,7 @@ where
     }
 
     /// stub for API compatible
-    #[inline(always)]
+    #[inline]
     pub fn resolve_font(self, _resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static) -> Self {
         self
     }
@@ -118,7 +117,7 @@ where
     Message: 'static,
     C: Chart<Message> + 'a,
 {
-    #[inline(always)]
+    #[inline]
     fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
     }

@@ -26,7 +26,6 @@ pub(crate) struct SvgBackend<'b, 'n> {
 }
 
 impl<'b, 'n> SvgBackend<'b, 'n> {
-    #[inline]
     pub fn new(
         bump: &'b bumpalo::Bump,
         size: (u32, u32),
@@ -43,17 +42,14 @@ impl<'b, 'n> SvgBackend<'b, 'n> {
 
 impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
     type ErrorType = Error;
-    #[inline(always)]
     fn get_size(&self) -> (u32, u32) {
         self.size
     }
 
-    #[inline(always)]
     fn ensure_prepared(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }
 
-    #[inline(always)]
     fn present(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }
@@ -298,7 +294,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
         Ok(())
     }
 
-    #[inline(always)]
+    #[inline]
     fn estimate_text_size<S: BackendTextStyle>(
         &self,
         text: &str,
@@ -309,7 +305,7 @@ impl<'b, 'n> DrawingBackend for SvgBackend<'b, 'n> {
             .map_err(|e| DrawingErrorKind::DrawingError(e.into()))
     }
 
-    #[inline(always)]
+    #[inline]
     fn blit_bitmap(
         &mut self,
         _pos: BackendCoord,
@@ -329,7 +325,7 @@ mod svg_builder {
     const SVG_NAMESPACE: &str = "http://www.w3.org/2000/svg";
 
     #[allow(unused)]
-    #[inline(always)]
+    #[inline]
     pub fn g<'a, B>(
         bump: B,
     ) -> ElementBuilder<
@@ -344,7 +340,7 @@ mod svg_builder {
         ElementBuilder::new(bump, "g").namespace(Some(SVG_NAMESPACE))
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn text<'a, B>(
         bump: B,
     ) -> ElementBuilder<
@@ -360,7 +356,7 @@ mod svg_builder {
     }
 
     #[allow(unused)]
-    #[inline(always)]
+    #[inline]
     pub fn foreign_object<'a, B>(
         bump: B,
     ) -> ElementBuilder<

@@ -51,7 +51,6 @@ where
     B: Backend + backend::Text,
     F: Fn(FontFamily, FontStyle) -> Font,
 {
-    #[inline]
     pub fn new(frame: &'a mut canvas::Frame, backend: &'a B, font_resolver: &'a F) -> Self {
         Self {
             frame,
@@ -68,18 +67,15 @@ where
 {
     type ErrorType = Error;
 
-    #[inline]
     fn get_size(&self) -> (u32, u32) {
         let Size { width, height } = self.frame.size();
         (width as u32, height as u32)
     }
 
-    #[inline]
     fn ensure_prepared(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }
 
-    #[inline]
     fn present(&mut self) -> Result<(), DrawingErrorKind<Error>> {
         Ok(())
     }

@@ -20,7 +20,6 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
-    #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{:?}", self)
     }
