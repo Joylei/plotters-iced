@@ -1,7 +1,7 @@
 // plotters-iced
 //
 // Iced backend for Plotters
-// Copyright: 2021, Joylei <leingliu@gmail.com>
+// Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
 use super::backend::IcedChartBackend;
