@@ -2,9 +2,9 @@ name: Test and Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,30 +15,30 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        rust: [stable, beta]
+        rust: [stable]
     steps:
-    - uses: actions/checkout@v2
-    - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-         toolchain: ${{ matrix.rust }}
-         components: rustfmt
-         override: true
-    - name: Install dependencies
-      run: |
-             if [ "$RUNNER_OS" == "Linux" ]; then
-                 sudo apt-get -qq update
-                 sudo apt-get install -y libxkbcommon-dev
-             fi
-      shell: bash
-    - name: Verify versions
-      run: rustc --version && rustup --version && cargo --version
-    - name: Cargo Build
-      run: cargo build --verbose
-    - name: Build example
-      run: cargo build --examples
-      continue-on-error: true
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Check code style
-      run: cargo fmt -- --check
+      - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt
+          override: true
+      - name: Install dependencies
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get -qq update
+              sudo apt-get install -y libxkbcommon-dev
+          fi
+        shell: bash
+      - name: Verify versions
+        run: rustc --version && rustup --version && cargo --version
+      - name: Cargo Build
+        run: cargo build --verbose
+      - name: Build example
+        run: cargo build --examples
+        continue-on-error: true
+      - name: Run tests
+        run: cargo test --verbose
+      - name: Check code style
+        run: cargo fmt -- --check
