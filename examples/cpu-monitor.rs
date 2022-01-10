@@ -139,7 +139,7 @@ impl Default for SystemChart {
 impl SystemChart {
     #[inline]
     fn is_initialized(&self) -> bool {
-        self.processors.len() > 0
+        !self.processors.is_empty()
     }
 
     #[inline]
@@ -156,11 +156,7 @@ impl SystemChart {
         self.sys.refresh_cpu();
         self.last_sample_time = Instant::now();
         let now = Utc::now();
-        let data = self
-            .sys
-            .processors()
-            .into_iter()
-            .map(|v| v.cpu_usage() as i32);
+        let data = self.sys.processors().iter().map(|v| v.cpu_usage() as i32);
 
         //check if initialized
         if !self.is_initialized() {
