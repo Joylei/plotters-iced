@@ -1,0 +1,229 @@
+// plotters-iced
+//
+// Iced backend for Plotters
+// Copyright: 2022, Grey <grey@openrobotics.org>
+// License: MIT
+
+use iced::{
+    Application, Align, HorizontalAlignment, Command, Clipboard, Point, Element, Column, Length, Container, Size,
+    executor,
+    canvas::{Cache, Geometry, Frame},
+};
+use plotters::{
+    prelude::*,
+    coord::{
+        ReverseCoordTranslate,
+        types::RangedCoordf32
+    }
+};
+use plotters_iced::{Chart, ChartWidget};
+use std::cell::RefCell;
+
+struct State {
+    chart: ArtChart,
+}
+
+impl Application for State {
+    type Message = Message;
+    type Executor = executor::Default;
+    type Flags = ();
+
+    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        (
+            Self{ chart: ArtChart::default() },
+            Command::none()
+        )
+    }
+
+    fn title(&self) -> String { "Art".to_owned() }
+
+    fn update(
+        &mut self,
+        message: Self::Message,
+        _clipboard: &mut Clipboard,
+    ) -> Command<Self::Message> {
+
+        match message {
+            Message::MouseEvent(event, point) => {
+                self.chart.set_current_position(point);
+                match event {
+                    iced::mouse::Event::ButtonPressed(button) => {
+                        if let iced::mouse::Button::Left = button {
+                            self.chart.set_down(true);
+                        }
+                    },
+                    iced::mouse::Event::ButtonReleased(button) => {
+                        if let iced::mouse::Button::Left = button {
+                            self.chart.set_down(false);
+                        }
+                    },
+                    _ => {
+                        // Do nothing
+                    }
+                }
+            }
+        }
+
+        Command::none()
+    }
+
+    fn view(&mut self) -> Element<Self::Message> {
+        let content = Column::new()
+            .spacing(20)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .push(
+                iced::Text::new("Click below!")
+                .size(20)
+            )
+            .push(self.chart.view())
+            .align_items(Align::Center)
+            .padding(15);
+
+        Container::new(content)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .padding(5)
+            .center_x()
+            .center_y()
+            .into()
+    }
+}
+
+#[derive(Default)]
+struct ArtChart {
+    cache: Cache,
+    points: Vec<(f32, f32)>,
+    lines: Vec<((f32, f32), (f32, f32))>,
+    is_down: bool,
+    current_position: Option<(f32, f32)>,
+    initial_down_position: Option<(f32, f32)>,
+    spec: RefCell<Option<Cartesian2d<RangedCoordf32, RangedCoordf32>>>,
+}
+
+impl ArtChart {
+
+    fn view(&mut self) -> Element<Message> {
+        let chart = ChartWidget::new(self)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .on_mouse_event(Box::new(|event, point| { Some(Message::MouseEvent(event, point)) }));
+
+        chart.into()
+    }
+
+    fn set_current_position(&mut self, p: Point) {
+        if let Some(spec) = self.spec.borrow().as_ref() {
+            self.current_position = spec.reverse_translate((p.x as i32, p.y as i32));
+            self.cache.clear();
+        }
+    }
+
+    fn nearby(p0: (f32, f32), p1: (f32, f32)) -> bool {
+        let delta = (p1.0 - p0.0, p1.1 - p0.1);
+        return (delta.0*delta.0 + delta.1*delta.1).sqrt() <= 1.0;
+    }
+
+    fn set_down(&mut self, new_is_down: bool) {
+        if !self.is_down && new_is_down {
+            self.initial_down_position = self.current_position.clone();
+        }
+
+        if self.is_down && !new_is_down {
+            if let Some((initial_p, current_p)) = self.initial_down_position.zip(self.current_position) {
+                if Self::nearby(initial_p, current_p) {
+                    self.points.push(current_p);
+                } else {
+                    self.lines.push((initial_p, current_p));
+                }
+            }
+        }
+
+        self.is_down = new_is_down;
+    }
+}
+
+impl Chart<Message> for ArtChart {
+    fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry {
+        self.cache.draw(bounds, draw_fn)
+    }
+
+    fn build_chart<DB: DrawingBackend>(&self, mut builder: ChartBuilder<DB>) {
+        use plotters::style::colors;
+
+        const POINT_COLOR: RGBColor = colors::RED;
+        const LINE_COLOR: RGBColor = colors::BLUE;
+        const HOVER_COLOR: RGBColor = colors::YELLOW;
+        const PREVIEW_COLOR: RGBColor = colors::GREEN;
+
+        let mut chart = builder
+            .x_label_area_size(28_i32)
+            .y_label_area_size(28_i32)
+            .margin(20_i32)
+            .build_cartesian_2d(0_f32..100_f32, 0_f32..100_f32)
+            .expect("Failed to build chart");
+
+        chart
+            .configure_mesh()
+            .bold_line_style(&colors::BLACK.mix(0.1))
+            .light_line_style(&colors::BLACK.mix(0.05))
+            .axis_style(ShapeStyle::from(&colors::BLACK.mix(0.45)).stroke_width(1))
+            .y_labels(10)
+            .y_label_style(
+                ("sans-serif", 15)
+                    .into_font()
+                    .color(&colors::BLACK.mix(0.65))
+                    .transform(FontTransform::Rotate90)
+            )
+            .y_label_formatter(&|y| format!("{}", y))
+            .draw()
+            .expect("Failed to draw chart mesh");
+
+        chart.draw_series(
+            self.points.iter().map(|p|{ Circle::new(p.clone(), 5_i32, POINT_COLOR.filled()) })
+        ).expect("Failed to draw points");
+
+        for line in &self.lines {
+            chart.draw_series(
+                LineSeries::new(
+                    vec![line.0, line.1].into_iter(),
+                    LINE_COLOR.filled()
+                )
+            ).expect("Failed to draw line");
+        }
+
+        if self.is_down {
+            if let Some((initial_p, current_p)) = self.initial_down_position.zip(self.current_position) {
+                if Self::nearby(initial_p, current_p) {
+                    chart.draw_series(
+                        std::iter::once(Circle::new(current_p.clone(), 5_i32, PREVIEW_COLOR.filled()))
+                    ).expect("Failed to draw preview point");
+                } else {
+                    chart.draw_series(
+                        LineSeries::new(
+                            vec![initial_p, current_p].into_iter(),
+                            PREVIEW_COLOR.filled()
+                        )
+                    ).expect("Failed to draw preview line");
+                }
+            }
+        } else {
+            if let Some(current_p) = self.current_position {
+                chart.draw_series(
+                    std::iter::once(Circle::new(current_p.clone(), 5_i32, HOVER_COLOR.filled()))
+                ).expect("Failed to draw hover point");
+            }
+        }
+
+        *self.spec.borrow_mut() = Some(chart.as_coord_spec().clone());
+    }
+}
+
+#[derive(Debug)]
+enum Message {
+    MouseEvent(iced::mouse::Event, iced::Point)
+}
+
+fn main() -> iced::Result {
+    State::run(iced::Settings::default())
+}
