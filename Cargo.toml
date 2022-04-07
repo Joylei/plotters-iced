@@ -38,6 +38,7 @@ plotters = { version="0.3", default_features=false, features=[
     "chrono",
     "area_series",
     "line_series",
+    "point_series",
 ] }
 iced = { version="0.3", features=["canvas", "tokio"] }
 chrono = { version="0.4", default-features=false }
