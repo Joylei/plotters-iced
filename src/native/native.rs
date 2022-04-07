@@ -11,6 +11,17 @@ use iced_native::{
 use plotters_backend::{FontFamily, FontStyle};
 use std::{hash::Hash, marker::PhantomData};
 
+/// Signature for the callback that ChartWidget can trigger when a mouse event
+/// happens inside its layout. Return None if the mouse event is not being
+/// handled by this callback.
+///
+/// # Arguments
+///
+/// * The type of mouse event
+/// * The cursor position during the event, relative to the widget origin. Use
+///   the chart coord spec to transform this point into the chart's data coordinates.
+pub type MouseEventCallback<Message> = Box<dyn Fn(iced_native::mouse::Event, Point) -> Option<Message>>;
+
 /// Chart container, turns [`Chart`]s to [`Widget`]s
 pub struct ChartWidget<Message, C>
 where
@@ -20,6 +31,7 @@ where
     width: Length,
     height: Length,
     font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
+    on_mouse_event: Option<MouseEventCallback<Message>>,
     _marker: PhantomData<Message>,
 }
 
@@ -34,6 +46,7 @@ where
             width: Length::Fill,
             height: Length::Fill,
             font_resolver: Box::new(|_, _| Default::default()),
+            on_mouse_event: None,
             _marker: Default::default(),
         }
     }
@@ -56,6 +69,15 @@ where
         resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
     ) -> Self {
         self.font_resolver = Box::new(resolver);
+        self
+    }
+
+    #[inline(always)]
+    pub fn on_mouse_event(
+        mut self,
+        callback: MouseEventCallback<Message>)
+    -> Self {
+        self.on_mouse_event = Some(callback);
         self
     }
 }
@@ -117,6 +139,21 @@ where
         clipboard: &mut dyn Clipboard,
         messages: &mut Vec<Message>,
     ) -> event::Status {
+
+        if let iced_native::Event::Mouse(mouse_event) = &event {
+            if let Some(callback) = &self.on_mouse_event {
+                let bounds = layout.bounds();
+                if bounds.contains(cursor_position) {
+                    let p_origin = bounds.position();
+                    let p = cursor_position - p_origin;
+                    if let Some(message) = callback(*mouse_event, Point::new(p.x, p.y)) {
+                        messages.push(message);
+                        return event::Status::Captured;
+                    }
+                }
+            }
+        }
+
         renderer.on_event(
             &mut self.chart,
             event,
