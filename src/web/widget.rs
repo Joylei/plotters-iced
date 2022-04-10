@@ -88,8 +88,6 @@ where
         _style_sheet: &mut Css<'b>,
     ) -> dodrio::Node<'b> {
         use dodrio::builder::*;
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
         let mut nodes = Vec::new();
         let backend = SvgBackend::new(bump, (self.width as u32, self.height as u32), &mut nodes);
         self.chart.draw_chart(backend.into());
