@@ -36,7 +36,7 @@ impl RotateAngle for FontTransform {
             FontTransform::Rotate180 => Some(180.0),
             FontTransform::Rotate270 => Some(270.0),
             FontTransform::Rotate90 => Some(90.0),
-            &FontTransform::RotateAngle(v) => Some(v),
+            //&FontTransform::RotateAngle(v) => Some(v),
             _ => None,
         }
     }
