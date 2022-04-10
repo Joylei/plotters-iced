@@ -5,16 +5,13 @@
 // License: MIT
 
 use iced::{
-    Application, Align, HorizontalAlignment, Command, Clipboard, Point, Element, Column, Length, Container, Size,
-    executor,
-    canvas::{Cache, Geometry, Frame},
+    canvas::{Cache, Frame, Geometry},
+    executor, Align, Application, Clipboard, Column, Command, Container, Element,
+    HorizontalAlignment, Length, Point, Size,
 };
 use plotters::{
+    coord::{types::RangedCoordf32, ReverseCoordTranslate},
     prelude::*,
-    coord::{
-        ReverseCoordTranslate,
-        types::RangedCoordf32
-    }
 };
 use plotters_iced::{Chart, ChartWidget};
 use std::cell::RefCell;
@@ -30,19 +27,22 @@ impl Application for State {
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
-            Self{ chart: ArtChart::default() },
-            Command::none()
+            Self {
+                chart: ArtChart::default(),
+            },
+            Command::none(),
         )
     }
 
-    fn title(&self) -> String { "Art".to_owned() }
+    fn title(&self) -> String {
+        "Art".to_owned()
+    }
 
     fn update(
         &mut self,
         message: Self::Message,
         _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
-
         match message {
             Message::MouseEvent(event, point) => {
                 self.chart.set_current_position(point);
@@ -51,12 +51,12 @@ impl Application for State {
                         if let iced::mouse::Button::Left = button {
                             self.chart.set_down(true);
                         }
-                    },
+                    }
                     iced::mouse::Event::ButtonReleased(button) => {
                         if let iced::mouse::Button::Left = button {
                             self.chart.set_down(false);
                         }
-                    },
+                    }
                     _ => {
                         // Do nothing
                     }
@@ -72,10 +72,7 @@ impl Application for State {
             .spacing(20)
             .width(Length::Fill)
             .height(Length::Fill)
-            .push(
-                iced::Text::new("Click below!")
-                .size(20)
-            )
+            .push(iced::Text::new("Click below!").size(20))
             .push(self.chart.view())
             .align_items(Align::Center)
             .padding(15);
@@ -102,12 +99,13 @@ struct ArtChart {
 }
 
 impl ArtChart {
-
     fn view(&mut self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill)
-            .on_mouse_event(Box::new(|event, point| { Some(Message::MouseEvent(event, point)) }));
+            .on_mouse_event(Box::new(|event, point| {
+                Some(Message::MouseEvent(event, point))
+            }));
 
         chart.into()
     }
@@ -121,7 +119,7 @@ impl ArtChart {
 
     fn nearby(p0: (f32, f32), p1: (f32, f32)) -> bool {
         let delta = (p1.0 - p0.0, p1.1 - p0.1);
-        return (delta.0*delta.0 + delta.1*delta.1).sqrt() <= 1.0;
+        return (delta.0 * delta.0 + delta.1 * delta.1).sqrt() <= 1.0;
     }
 
     fn set_down(&mut self, new_is_down: bool) {
@@ -130,7 +128,9 @@ impl ArtChart {
         }
 
         if self.is_down && !new_is_down {
-            if let Some((initial_p, current_p)) = self.initial_down_position.zip(self.current_position) {
+            if let Some((initial_p, current_p)) =
+                self.initial_down_position.zip(self.current_position)
+            {
                 if Self::nearby(initial_p, current_p) {
                     self.points.push(current_p);
                 } else {
@@ -173,45 +173,59 @@ impl Chart<Message> for ArtChart {
                 ("sans-serif", 15)
                     .into_font()
                     .color(&colors::BLACK.mix(0.65))
-                    .transform(FontTransform::Rotate90)
+                    .transform(FontTransform::Rotate90),
             )
             .y_label_formatter(&|y| format!("{}", y))
             .draw()
             .expect("Failed to draw chart mesh");
 
-        chart.draw_series(
-            self.points.iter().map(|p|{ Circle::new(p.clone(), 5_i32, POINT_COLOR.filled()) })
-        ).expect("Failed to draw points");
+        chart
+            .draw_series(
+                self.points
+                    .iter()
+                    .map(|p| Circle::new(p.clone(), 5_i32, POINT_COLOR.filled())),
+            )
+            .expect("Failed to draw points");
 
         for line in &self.lines {
-            chart.draw_series(
-                LineSeries::new(
+            chart
+                .draw_series(LineSeries::new(
                     vec![line.0, line.1].into_iter(),
-                    LINE_COLOR.filled()
-                )
-            ).expect("Failed to draw line");
+                    LINE_COLOR.filled(),
+                ))
+                .expect("Failed to draw line");
         }
 
         if self.is_down {
-            if let Some((initial_p, current_p)) = self.initial_down_position.zip(self.current_position) {
+            if let Some((initial_p, current_p)) =
+                self.initial_down_position.zip(self.current_position)
+            {
                 if Self::nearby(initial_p, current_p) {
-                    chart.draw_series(
-                        std::iter::once(Circle::new(current_p.clone(), 5_i32, PREVIEW_COLOR.filled()))
-                    ).expect("Failed to draw preview point");
+                    chart
+                        .draw_series(std::iter::once(Circle::new(
+                            current_p.clone(),
+                            5_i32,
+                            PREVIEW_COLOR.filled(),
+                        )))
+                        .expect("Failed to draw preview point");
                 } else {
-                    chart.draw_series(
-                        LineSeries::new(
+                    chart
+                        .draw_series(LineSeries::new(
                             vec![initial_p, current_p].into_iter(),
-                            PREVIEW_COLOR.filled()
-                        )
-                    ).expect("Failed to draw preview line");
+                            PREVIEW_COLOR.filled(),
+                        ))
+                        .expect("Failed to draw preview line");
                 }
             }
         } else {
             if let Some(current_p) = self.current_position {
-                chart.draw_series(
-                    std::iter::once(Circle::new(current_p.clone(), 5_i32, HOVER_COLOR.filled()))
-                ).expect("Failed to draw hover point");
+                chart
+                    .draw_series(std::iter::once(Circle::new(
+                        current_p.clone(),
+                        5_i32,
+                        HOVER_COLOR.filled(),
+                    )))
+                    .expect("Failed to draw hover point");
             }
         }
 
@@ -221,7 +235,7 @@ impl Chart<Message> for ArtChart {
 
 #[derive(Debug)]
 enum Message {
-    MouseEvent(iced::mouse::Event, iced::Point)
+    MouseEvent(iced::mouse::Event, iced::Point),
 }
 
 fn main() -> iced::Result {

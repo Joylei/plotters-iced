@@ -20,7 +20,8 @@ use std::{hash::Hash, marker::PhantomData};
 /// * The type of mouse event
 /// * The cursor position during the event, relative to the widget origin. Use
 ///   the chart coord spec to transform this point into the chart's data coordinates.
-pub type MouseEventCallback<Message> = Box<dyn Fn(iced_native::mouse::Event, Point) -> Option<Message>>;
+pub type MouseEventCallback<Message> =
+    Box<dyn Fn(iced_native::mouse::Event, Point) -> Option<Message>>;
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
 pub struct ChartWidget<Message, C>
@@ -73,10 +74,7 @@ where
     }
 
     #[inline(always)]
-    pub fn on_mouse_event(
-        mut self,
-        callback: MouseEventCallback<Message>)
-    -> Self {
+    pub fn on_mouse_event(mut self, callback: MouseEventCallback<Message>) -> Self {
         self.on_mouse_event = Some(callback);
         self
     }
@@ -137,7 +135,6 @@ where
         clipboard: &mut dyn Clipboard,
         messages: &mut Vec<Message>,
     ) -> event::Status {
-
         if let iced_native::Event::Mouse(mouse_event) = &event {
             if let Some(callback) = &self.on_mouse_event {
                 let bounds = layout.bounds();
