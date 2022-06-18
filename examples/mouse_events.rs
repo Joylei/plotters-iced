@@ -6,8 +6,7 @@
 
 use iced::{
     canvas::{Cache, Frame, Geometry},
-    executor, Align, Application, Clipboard, Column, Command, Container, Element,
-    HorizontalAlignment, Length, Point, Size,
+    executor, Alignment, Application, Column, Command, Container, Element, Length, Point, Size,
 };
 use plotters::{
     coord::{types::RangedCoordf32, ReverseCoordTranslate},
@@ -41,7 +40,6 @@ impl Application for State {
     fn update(
         &mut self,
         message: Self::Message,
-        _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
         match message {
             Message::MouseEvent(event, point) => {
@@ -74,7 +72,7 @@ impl Application for State {
             .height(Length::Fill)
             .push(iced::Text::new("Click below!").size(20))
             .push(self.chart.view())
-            .align_items(Align::Center)
+            .align_items(Alignment::Center)
             .padding(15);
 
         Container::new(content)

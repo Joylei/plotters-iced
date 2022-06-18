@@ -31,7 +31,7 @@ extern crate iced;
 extern crate plotters;
 
 use iced::{
-    executor, Align, Application, Clipboard, Column, Command, Container, Element, Length, Settings,
+    executor, Alignment, Application, Column, Command, Container, Element, Length, Settings,
     Subscription,
 };
 use plotters::{coord::Shift, prelude::*};
@@ -79,7 +79,6 @@ impl Application for State {
     fn update(
         &mut self,
         _message: Self::Message,
-        _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
         Command::none()
     }
@@ -87,7 +86,7 @@ impl Application for State {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let content = Column::new()
             .spacing(20)
-            .align_items(Align::Start)
+            .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(iced::Text::new("Iced test chart").size(TITLE_FONT_SIZE))
