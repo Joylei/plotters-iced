@@ -13,11 +13,8 @@ use self::utils::{
 };
 use crate::error::Error;
 use iced_graphics::{
-    backend,
-    canvas,
-    Backend,
-    Size,
-    alignment::{Vertical, Horizontal},
+    alignment::{Horizontal, Vertical},
+    backend, canvas, Backend, Size,
 };
 use iced_native::Font;
 use plotters_backend::{

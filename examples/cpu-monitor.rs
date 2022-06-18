@@ -9,9 +9,10 @@ extern crate sysinfo;
 
 use chrono::{DateTime, Utc};
 use iced::{
+    alignment::{Horizontal, Vertical},
     canvas::{Cache, Frame, Geometry},
     executor, scrollable, Alignment, Application, Column, Command, Container, Element, Font,
-    alignment::{Horizontal, Vertical}, Length, Row, Scrollable, Settings, Size, Space, Subscription,
+    Length, Row, Scrollable, Settings, Size, Space, Subscription,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -71,10 +72,7 @@ impl Application for State {
         "CPU Monitor Example".to_owned()
     }
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             Message::Tick => {
                 self.chart.update();

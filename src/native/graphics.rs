@@ -7,8 +7,10 @@
 use super::backend::IcedChartBackend;
 use super::native::Renderer as ChartRenderer;
 use crate::Chart;
-use iced_graphics::{backend, canvas, canvas::Cursor, Backend, Primitive, Renderer, renderer::Style};
-use iced_native::{event, Font, Point, Rectangle, Vector, Shell};
+use iced_graphics::{
+    backend, canvas, canvas::Cursor, renderer::Style, Backend, Primitive, Renderer,
+};
+use iced_native::{event, Font, Point, Rectangle, Shell, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
@@ -25,8 +27,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         layout: iced_native::Layout<'_>,
         _cursor_position: Point,
         _viewport: &Rectangle,
-    )
-    where
+    ) where
         C: Chart<Message>,
     {
         let bounds = layout.bounds();
@@ -37,7 +38,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         });
         let translation = Vector::new(bounds.x, bounds.y);
 
-        self.draw_primitive( Primitive::Translate {
+        self.draw_primitive(Primitive::Translate {
             translation,
             content: Box::new(geometry.into_primitive()),
         })
@@ -51,7 +52,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         _clipboard: &mut dyn iced_native::Clipboard,
-        messages: &mut Shell<'_,Message>,
+        messages: &mut Shell<'_, Message>,
     ) -> iced_native::event::Status {
         let bounds = layout.bounds();
 

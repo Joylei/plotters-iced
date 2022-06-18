@@ -5,12 +5,12 @@
 // License: MIT
 
 use crate::Chart;
-use iced_native::{
-    event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Size, Widget, Shell,
-};
-use iced_graphics::{renderer::Style};
-use plotters_backend::{FontFamily, FontStyle};
 use core::marker::PhantomData;
+use iced_graphics::renderer::Style;
+use iced_native::{
+    event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Shell, Size, Widget,
+};
+use plotters_backend::{FontFamily, FontStyle};
 
 /// Signature for the callback that ChartWidget can trigger when a mouse event
 /// happens inside its layout. Return None if the mouse event is not being
@@ -115,7 +115,7 @@ where
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
-    )  {
+    ) {
         renderer.draw_chart(
             &self.chart,
             &self.font_resolver,
@@ -170,7 +170,8 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
-    )  where  C: Chart<Message>;
+    ) where
+        C: Chart<Message>;
 
     fn on_event<Message, C: Chart<Message>>(
         &self,
