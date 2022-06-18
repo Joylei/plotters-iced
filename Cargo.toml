@@ -1,6 +1,6 @@
 [package]
 name = "plotters-iced"
-version = "0.2.0"
+version = "0.3.0"
 description = "Iced backend for Plotters"
 readme = "README.md"
 license = "MIT"
@@ -20,22 +20,8 @@ plotters-backend = "0.3"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 num-traits = "0.2"
 libc = "0.2"
-iced_native = "0.4"
-iced_graphics = { version = "0.2", features = ["canvas"] }
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-iced_web = "0.4"
-dodrio = "0.2"
-web-sys = { version = "0.3", features = [
-    "Window",
-    "Document",
-    "Element",
-    "HtmlElement",
-    "DomRect",
-] }
-wasm-bindgen = "0.2.69" #align with iced_web
-js-sys = "0.3"
-lru = "0.7"
+iced_native = "0.5"
+iced_graphics = { version = "0.3", features = ["canvas"] }
 
 [build-dependencies]
 cc = "1.0"
@@ -47,7 +33,7 @@ plotters = { version = "0.3", default_features = false, features = [
     "line_series",
     "point_series",
 ] }
-iced = { version = "0.3", features = ["canvas", "tokio"] }
+iced = { version = "0.4", features = ["canvas", "tokio"] }
 chrono = { version = "0.4", default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]

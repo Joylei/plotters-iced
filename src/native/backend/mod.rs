@@ -16,10 +16,8 @@ use iced_graphics::{
     backend,
     canvas,
     Backend,
-    HorizontalAlignment,
     Size,
-    //Vector,
-    VerticalAlignment,
+    alignment::{Vertical, Horizontal},
 };
 use iced_native::Font;
 use plotters_backend::{
@@ -243,14 +241,14 @@ where
             return Ok(());
         }
         let horizontal_alignment = match style.anchor().h_pos {
-            text_anchor::HPos::Left => HorizontalAlignment::Left,
-            text_anchor::HPos::Right => HorizontalAlignment::Right,
-            text_anchor::HPos::Center => HorizontalAlignment::Center,
+            text_anchor::HPos::Left => Horizontal::Left,
+            text_anchor::HPos::Right => Horizontal::Right,
+            text_anchor::HPos::Center => Horizontal::Center,
         };
         let vertical_alignment = match style.anchor().v_pos {
-            text_anchor::VPos::Top => VerticalAlignment::Top,
-            text_anchor::VPos::Center => VerticalAlignment::Center,
-            text_anchor::VPos::Bottom => VerticalAlignment::Bottom,
+            text_anchor::VPos::Top => Vertical::Top,
+            text_anchor::VPos::Center => Vertical::Center,
+            text_anchor::VPos::Bottom => Vertical::Bottom,
         };
         let font = (self.font_resolver)(style.family(), style.style());
         let pos = pos.cvt_point();

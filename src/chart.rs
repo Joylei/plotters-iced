@@ -4,17 +4,10 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-#[cfg(not(target_arch = "wasm32"))]
 use iced_graphics::canvas::{Cursor, Event, Frame, Geometry};
-#[cfg(not(target_arch = "wasm32"))]
 use iced_native::{event::Status, Rectangle, Size};
-#[cfg(target_arch = "wasm32")]
-use iced_web::{Rectangle, Size};
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
 use plotters_backend::DrawingBackend;
-
-#[cfg(target_arch = "wasm32")]
-use dummy::*;
 
 impl<Message, C> Chart<Message> for &mut C
 where
@@ -134,29 +127,4 @@ pub trait Chart<Message> {
     ) -> (Status, Option<Message>) {
         (Status::Ignored, None)
     }
-}
-
-#[cfg(target_arch = "wasm32")]
-#[doc(hidden)]
-pub mod dummy {
-    use super::Size;
-    pub enum Internal {}
-    pub type Cursor = Internal;
-    pub type Event = Internal;
-    pub enum Status {
-        Ignored,
-    }
-    pub struct Frame;
-
-    impl Frame {
-        pub fn new(_size: Size) -> Self {
-            Self
-        }
-
-        pub fn into_geometry(self) -> Geometry {
-            ()
-        }
-    }
-
-    pub type Geometry = ();
 }

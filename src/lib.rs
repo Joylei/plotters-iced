@@ -55,20 +55,14 @@
 pub extern crate plotters_backend;
 mod chart;
 mod error;
-#[cfg(not(target_arch = "wasm32"))]
 mod native;
 mod utils;
-#[cfg(target_arch = "wasm32")]
-mod web;
 
 #[doc(inline)]
 pub use chart::Chart;
 #[doc(inline)]
 pub use error::Error;
-#[cfg(not(target_arch = "wasm32"))]
 pub use native::ChartWidget;
-#[cfg(target_arch = "wasm32")]
-pub use web::ChartWidget;
 
 #[doc(no_inline)]
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};

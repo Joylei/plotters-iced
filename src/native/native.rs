@@ -6,10 +6,11 @@
 
 use crate::Chart;
 use iced_native::{
-    event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Size, Widget,
+    event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Size, Widget, Shell,
 };
+use iced_graphics::{renderer::Style};
 use plotters_backend::{FontFamily, FontStyle};
-use std::{hash::Hash, marker::PhantomData};
+use core::marker::PhantomData;
 
 /// Signature for the callback that ChartWidget can trigger when a mouse event
 /// happens inside its layout. Return None if the mouse event is not being
@@ -110,15 +111,15 @@ where
     fn draw(
         &self,
         renderer: &mut Renderer,
-        defaults: &Renderer::Defaults,
+        style: &Style,
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
-    ) -> Renderer::Output {
+    )  {
         renderer.draw_chart(
             &self.chart,
             &self.font_resolver,
-            defaults,
+            style,
             layout,
             cursor_position,
             viewport,
@@ -133,7 +134,7 @@ where
         cursor_position: Point,
         renderer: &Renderer,
         clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
+        shell: &mut Shell<'_, Message>,
     ) -> event::Status {
         if let iced_native::Event::Mouse(mouse_event) = &event {
             if let Some(callback) = &self.on_mouse_event {
@@ -142,7 +143,7 @@ where
                     let p_origin = bounds.position();
                     let p = cursor_position - p_origin;
                     if let Some(message) = callback(*mouse_event, Point::new(p.x, p.y)) {
-                        messages.push(message);
+                        shell.publish(message);
                         return event::Status::Captured;
                     }
                 }
@@ -155,31 +156,21 @@ where
             layout,
             cursor_position,
             clipboard,
-            messages,
+            shell,
         )
-    }
-
-    #[inline]
-    fn hash_layout(&self, state: &mut iced_native::Hasher) {
-        struct Marker;
-        std::any::TypeId::of::<Marker>().hash(state);
-        self.width.hash(state);
-        self.height.hash(state);
     }
 }
 
 pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
     fn draw_chart<Message, C>(
-        &self,
+        &mut self,
         chart: &C,
         font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
-        defaults: &Self::Defaults,
+        defaults: &Style,
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
-    ) -> Self::Output
-    where
-        C: Chart<Message>;
+    )  where  C: Chart<Message>;
 
     fn on_event<Message, C: Chart<Message>>(
         &self,
@@ -188,7 +179,7 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
         layout: Layout<'_>,
         cursor_position: Point,
         clipboard: &mut dyn Clipboard,
-        messages: &mut Vec<Message>,
+        shell: &mut Shell<'_, Message>,
     ) -> event::Status;
 }
 

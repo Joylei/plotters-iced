@@ -7,8 +7,8 @@
 use super::backend::IcedChartBackend;
 use super::native::Renderer as ChartRenderer;
 use crate::Chart;
-use iced_graphics::{backend, canvas, canvas::Cursor, Backend, Primitive, Renderer};
-use iced_native::{event, mouse::Interaction, Font, Point, Rectangle, Vector};
+use iced_graphics::{backend, canvas, canvas::Cursor, Backend, Primitive, Renderer, renderer::Style};
+use iced_native::{event, Font, Point, Rectangle, Vector, Shell};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
@@ -18,14 +18,14 @@ pub type ChartWidget<Message, C> = super::native::ChartWidget<Message, C>;
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
     #[inline]
     fn draw_chart<Message, C>(
-        &self,
+        &mut self,
         chart: &C,
         font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
-        _defaults: &Self::Defaults,
+        _style: &Style,
         layout: iced_native::Layout<'_>,
         _cursor_position: Point,
         _viewport: &Rectangle,
-    ) -> Self::Output
+    )
     where
         C: Chart<Message>,
     {
@@ -36,14 +36,11 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
             chart.draw_chart(root);
         });
         let translation = Vector::new(bounds.x, bounds.y);
-        let cursor = Interaction::default();
-        (
-            Primitive::Translate {
-                translation,
-                content: Box::new(geometry.into()),
-            },
-            cursor,
-        )
+
+        self.draw_primitive( Primitive::Translate {
+            translation,
+            content: Box::new(geometry.into_primitive()),
+        })
     }
 
     #[inline]
@@ -54,7 +51,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         _clipboard: &mut dyn iced_native::Clipboard,
-        messages: &mut Vec<Message>,
+        messages: &mut Shell<'_,Message>,
     ) -> iced_native::event::Status {
         let bounds = layout.bounds();
 
@@ -69,7 +66,7 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
             let cursor = Cursor::Available(cursor_position);
             let (status, message) = chart.update(canvas_event, bounds, cursor);
             if let Some(m) = message {
-                messages.push(m);
+                messages.publish(m);
             }
             return status;
         }

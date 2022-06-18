@@ -10,9 +10,8 @@ extern crate sysinfo;
 use chrono::{DateTime, Utc};
 use iced::{
     canvas::{Cache, Frame, Geometry},
-    executor, scrollable, Align, Application, Clipboard, Column, Command, Container, Element, Font,
-    HorizontalAlignment, Length, Row, Scrollable, Settings, Size, Space, Subscription,
-    VerticalAlignment,
+    executor, scrollable, Alignment, Application, Column, Command, Container, Element, Font,
+    alignment::{Horizontal, Vertical}, Length, Row, Scrollable, Settings, Size, Space, Subscription,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -75,7 +74,6 @@ impl Application for State {
     fn update(
         &mut self,
         message: Self::Message,
-        _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
         match message {
             Message::Tick => {
@@ -88,7 +86,7 @@ impl Application for State {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let content = Column::new()
             .spacing(20)
-            .align_items(Align::Start)
+            .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(
@@ -176,8 +174,8 @@ impl SystemChart {
     fn view(&mut self) -> Element<Message> {
         if !self.is_initialized() {
             iced::Text::new("Loading...")
-                .horizontal_alignment(HorizontalAlignment::Center)
-                .vertical_alignment(VerticalAlignment::Center)
+                .horizontal_alignment(Horizontal::Center)
+                .vertical_alignment(Vertical::Center)
                 .into()
         } else {
             let mut scroll = Scrollable::new(&mut self.scroll)
@@ -192,7 +190,7 @@ impl SystemChart {
                     .padding(20)
                     .width(Length::Fill)
                     .height(Length::Units(chart_height))
-                    .align_items(Align::Center);
+                    .align_items(Alignment::Center);
                 for item in chunk {
                     row = row.push(item.view(idx));
                     idx += 1;
@@ -260,8 +258,8 @@ impl CpuUsageChart {
         .style(style::ChartContainer)
         .width(Length::Fill)
         .height(Length::Fill)
-        .align_x(Align::Center)
-        .align_y(Align::Center)
+        .align_x(Horizontal::Center)
+        .align_y(Vertical::Center)
         .into()
     }
 }
