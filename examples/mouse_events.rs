@@ -37,10 +37,7 @@ impl Application for State {
         "Art".to_owned()
     }
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             Message::MouseEvent(event, point) => {
                 self.chart.set_current_position(point);

@@ -1,4 +1,4 @@
 target/*
 Cargo.lock
 .cargo/*
-examples/js/*
+examples/split-chart/dist/*

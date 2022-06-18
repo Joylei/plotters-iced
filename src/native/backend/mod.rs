@@ -4,13 +4,10 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
+#[cfg(not(target_arch = "wasm32"))]
 mod triangulate;
 mod utils;
 
-use self::utils::{
-    converter::{cvt_color, cvt_stroke, CvtPoint},
-    path, shape,
-};
 use crate::error::Error;
 use iced_graphics::{
     alignment::{Horizontal, Vertical},
@@ -29,6 +26,9 @@ use plotters_backend::{
     FontStyle,
     //FontTransform,
 };
+use utils::converter::{cvt_color, cvt_stroke, CvtPoint};
+#[cfg(not(target_arch = "wasm32"))]
+use utils::{path, shape};
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B, F>
@@ -178,6 +178,7 @@ where
         Ok(())
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     #[inline]
     fn fill_polygon<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
         &mut self,
@@ -227,6 +228,30 @@ where
         Ok(())
     }
 
+    #[cfg(target_arch = "wasm32")]
+    #[inline]
+    fn fill_polygon<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
+        &mut self,
+        vert: I,
+        style: &S,
+    ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
+        if style.color().alpha == 0.0 {
+            return Ok(());
+        }
+        let path = canvas::Path::new(move |builder| {
+            for (i, point) in vert.into_iter().enumerate() {
+                if i > 0 {
+                    builder.line_to(point.cvt_point());
+                } else {
+                    builder.move_to(point.cvt_point());
+                }
+            }
+            builder.close();
+        });
+        self.frame.fill(&path, cvt_color(&style.color()));
+        Ok(())
+    }
+
     #[inline]
     fn draw_text<S: BackendTextStyle>(
         &mut self,
@@ -260,7 +285,7 @@ where
             horizontal_alignment,
             vertical_alignment,
         };
-        //TODO: fix rotation util text rotation is supported by Iced
+        //TODO: fix rotation until text rotation is supported by Iced
         // let rotate = match style.transform() {
         //     FontTransform::None => None,
         //     FontTransform::Rotate90 => Some(90.0),

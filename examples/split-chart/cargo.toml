@@ -1,0 +1,16 @@
+[package]
+name = "split-chart"
+version = "0.1.0"
+authors = ["Joylei <leingliu@gmail.com>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+iced = { version = "0.4", features = ["canvas", "tokio"] }
+plotters-iced = { path = "../../" }
+plotters = { version = "0.3", default_features = false, features = [
+    "chrono",
+    "area_series",
+    "line_series",
+    "point_series",
+] }

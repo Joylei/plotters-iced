@@ -13,15 +13,18 @@ keywords = ["plotters", "chart", "plot", "iced", "backend"]
 categories = ["visualization"]
 authors = ["Joylei <leingliu@gmail.com>"]
 
+[workspace]
+members = [".", "examples/split-chart"]
+
 [dependencies]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
+iced_native = "0.5"
+iced_graphics = { version = "0.3", features = ["canvas"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 num-traits = "0.2"
 libc = "0.2"
-iced_native = "0.5"
-iced_graphics = { version = "0.3", features = ["canvas"] }
 
 [build-dependencies]
 cc = "1.0"

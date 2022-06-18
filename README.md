@@ -30,8 +30,8 @@ Include `plotters-iced` in your `Cargo.toml` dependencies:
 
 ```toml
 [dependencies]
-plotters-iced = "0.1"
-iced = { version = "0.3", features = ["canvas", "tokio"] }
+plotters-iced = "0.3"
+iced = { version = "0.4", features = ["canvas", "tokio"] }
 plotters="0.3"
 ```
 
@@ -90,35 +90,18 @@ From this example, you'll learn:
 
 This example shows you how to split drawing area.
 
-- Run as native application
+- run the native version
 
 ```sh
 cargo run --release --example split-chart
 ```
 
-- Run as wasm application
-
-First, install wasm-bindgen-cli v0.2.69 (iced requires this version)
+- run the web version with [trunk](https://trunkrs.dev/)
 
 ```sh
-cargo install -f wasm-bindgen-cli --version 0.2.69
+cd examples
+trunk serve
 ```
-
-Then build the code and generate wasm bindings
-
-```sh
-cargo build --example split-chart --target wasm32-unknown-unknown
-wasm-bindgen ./target/wasm32-unknown-unknown/debug/examples/split-chart.wasm --out-dir ./examples/js --target web
-```
-
-Then, host the `examples` folder with a http server
-
-```sh
-cargo install https
-http examples
-```
-
-visit `http://localhost:8000/web-demo.html` in your browser.
 
 ## Are there any limitations?
 
