@@ -93,51 +93,25 @@ impl Application for State {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
             use std::time::Duration;
             iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            Subscription::none()
-        }
     }
 }
 
 #[allow(unused)]
-struct MyChart {
-    width: u16,  //wasm32 backend requires fixed size
-    height: u16, //wasm32 backend requires fixed size
-}
+struct MyChart;
 
 impl MyChart {
     pub fn new() -> Self {
-        Self {
-            width: 800,
-            height: 600,
-        }
+        Self
     }
 
     fn view(&mut self) -> Element<Message> {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let chart = ChartWidget::new(self)
-                .width(Length::Fill)
-                .height(Length::Fill);
+        let chart = ChartWidget::new(self)
+            .width(Length::Fill)
+            .height(Length::Fill);
 
-            chart.into()
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            let width = self.width;
-            let height = self.height;
-            let chart = ChartWidget::new(self)
-                .width(Length::Units(width))
-                .height(Length::Units(height));
-
-            chart.into()
-        }
+        chart.into()
     }
 }
 
