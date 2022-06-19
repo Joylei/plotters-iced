@@ -39,8 +39,6 @@ where
 
 /// Chart View Model
 ///
-/// use it with [`ChartWidget`].
-///
 /// ## Example
 /// ```rust,ignore
 /// use plotters::prelude::*;
@@ -99,7 +97,7 @@ pub trait Chart<Message> {
     ///
     /// ## Example
     /// ```rust,ignore
-    ///  
+    /// 
     /// impl Chart<Message> for CpuUsageChart {
     ///
     ///       #[inline]
