@@ -5,7 +5,7 @@
 // License: MIT
 
 /*!
-   The Plotters Iced backend, for both native and wasm applications.
+   The Plotters Iced backend, for both native ~~and wasm applications(not working for v0.3)~~.
 
    This is an implementation of a Iced backend for Plotters.
 

@@ -4,7 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/plotters-iced.svg)](https://crates.io/crates/plotters-iced)
 [![License](https://img.shields.io/crates/l/plotters-iced.svg)](https://github.com/joylei/plotters-iced/blob/master/LICENSE)
 
-This is an implementation of an Iced backend for Plotters, for both native and wasm applications.
+This is an implementation of an Iced backend for Plotters, for both native ~~and wasm applications(not working for v0.3)~~.
 
 This backend has been optimized as for speed. Note that some specific plotting features supported in the Bitmap backend may not be implemented there, though.
 
@@ -94,13 +94,6 @@ This example shows you how to split drawing area.
 
 ```sh
 cargo run --release --example split-chart
-```
-
-- run the web version with [trunk](https://trunkrs.dev/)
-
-```sh
-cd examples
-trunk serve
 ```
 
 ## Are there any limitations?
