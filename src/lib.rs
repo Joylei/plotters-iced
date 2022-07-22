@@ -52,6 +52,9 @@
 */
 #![warn(missing_docs)]
 
+#[cfg(all(feature = "native", feature = "pure"))]
+compile_error!("feature \"native\" and feature \"pure\" cannot be enabled at the same time");
+
 pub extern crate plotters_backend;
 mod chart;
 mod error;

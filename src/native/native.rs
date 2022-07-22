@@ -7,9 +7,20 @@
 use crate::Chart;
 use core::marker::PhantomData;
 use iced_graphics::renderer::Style;
+#[cfg(feature = "native")]
 use iced_native::{
     event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Shell, Size, Widget,
 };
+
+#[cfg(feature = "pure")]
+use iced_native::{
+    event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size,
+};
+#[cfg(feature = "pure")]
+use iced::pure::{Element, Widget};
+#[cfg(feature = "pure")]
+use iced_pure::widget::tree::Tree;
+
 use plotters_backend::{FontFamily, FontStyle};
 
 /// Signature for the callback that ChartWidget can trigger when a mouse event
@@ -107,9 +118,66 @@ where
         iced_native::layout::Node::new(size)
     }
 
+    #[cfg(feature = "native")]
     #[inline]
     fn draw(
         &self,
+        renderer: &mut Renderer,
+        style: &Style,
+        layout: Layout<'_>,
+        cursor_position: Point,
+        viewport: &Rectangle,
+    ) {
+        renderer.draw_chart(
+            &self.chart,
+            &self.font_resolver,
+            style,
+            layout,
+            cursor_position,
+            viewport,
+        )
+    }
+
+    #[cfg(feature = "native")]
+    #[inline]
+    fn on_event(
+        &mut self,
+        event: iced_native::Event,
+        layout: Layout<'_>,
+        cursor_position: Point,
+        renderer: &Renderer,
+        clipboard: &mut dyn Clipboard,
+        shell: &mut Shell<'_, Message>,
+    ) -> event::Status {
+        if let iced_native::Event::Mouse(mouse_event) = &event {
+            if let Some(callback) = &self.on_mouse_event {
+                let bounds = layout.bounds();
+                if bounds.contains(cursor_position) {
+                    let p_origin = bounds.position();
+                    let p = cursor_position - p_origin;
+                    if let Some(message) = callback(*mouse_event, Point::new(p.x, p.y)) {
+                        shell.publish(message);
+                        return event::Status::Captured;
+                    }
+                }
+            }
+        }
+
+        renderer.on_event(
+            &mut self.chart,
+            event,
+            layout,
+            cursor_position,
+            clipboard,
+            shell,
+        )
+    }
+
+    #[cfg(feature = "pure")]
+    #[inline]
+    fn draw(
+        &self,
+        _state: &Tree,
         renderer: &mut Renderer,
         style: &Style,
         layout: iced_native::Layout<'_>,
@@ -126,9 +194,11 @@ where
         )
     }
 
+    #[cfg(feature = "pure")]
     #[inline]
     fn on_event(
         &mut self,
+        _state: &mut Tree,
         event: iced_native::Event,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -167,7 +237,7 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
         chart: &C,
         font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
         defaults: &Style,
-        layout: iced_native::Layout<'_>,
+        layout: Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
     ) where
@@ -184,11 +254,23 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
     ) -> event::Status;
 }
 
+#[cfg(feature = "native")]
 impl<'a, Message, Renderer, C> From<ChartWidget<Message, C>> for Element<'a, Message, Renderer>
 where
     Message: 'a,
     C: Chart<Message> + 'a,
     Renderer: self::Renderer,
+{
+    fn from(widget: ChartWidget<Message, C>) -> Self {
+        Element::new(widget)
+    }
+}
+
+#[cfg(feature = "pure")]
+impl<'a, Message, C> From<ChartWidget<Message, C>> for Element<'a, Message>
+    where
+        Message: 'a,
+        C: Chart<Message> + 'a
 {
     fn from(widget: ChartWidget<Message, C>) -> Self {
         Element::new(widget)
