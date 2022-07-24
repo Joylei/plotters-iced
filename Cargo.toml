@@ -21,8 +21,7 @@ plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
 iced_native = "0.5"
 iced_graphics = { version = "0.3", features = ["canvas"] }
-iced = { version = "0.4.2", features = ["pure"], default_features = false, optional = true }
-iced_pure = { version = "0.2.2", optional = true }
+iced_pure = { version = "0.2", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 num-traits = "0.2"
@@ -46,5 +45,5 @@ sysinfo = { version = "0.23", default_features = false }
 
 [features]
 default = ["native"]
-pure = ["iced", "iced_pure"]
+pure = ["iced_pure"]
 native = []

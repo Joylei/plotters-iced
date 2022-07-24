@@ -5,7 +5,7 @@
 // License: MIT
 
 use super::backend::IcedChartBackend;
-use super::native::Renderer as ChartRenderer;
+use crate::renderer::Renderer as ChartRenderer;
 use crate::Chart;
 use iced_graphics::{
     backend, canvas, canvas::Cursor, renderer::Style, Backend, Primitive, Renderer,
@@ -13,9 +13,6 @@ use iced_graphics::{
 use iced_native::{event, Font, Point, Rectangle, Shell, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
-
-/// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
-pub type ChartWidget<Message, C> = super::native::ChartWidget<Message, C>;
 
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
     #[inline]

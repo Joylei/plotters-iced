@@ -16,6 +16,6 @@ fn build_poly2tri() {
     cc::Build::new()
         .cpp(true)
         .include("vendor/poly2tri")
-        .file("src/native/backend/triangulate/binding.cpp")
+        .file("src/backend/triangulate/binding.cpp")
         .compile("libpoly2tri.a");
 }

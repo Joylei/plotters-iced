@@ -52,33 +52,33 @@
 */
 #![warn(missing_docs)]
 
-#[cfg(all(feature = "native", feature = "pure"))]
-compile_error!("feature \"native\" and feature \"pure\" cannot be enabled at the same time");
-
 pub extern crate plotters_backend;
+mod backend;
 mod chart;
 mod error;
-mod native;
+mod event;
+mod graphics;
+mod renderer;
+
+/// native widgets
+#[cfg(feature = "native")]
+pub mod native;
+
+/// pure widgets
+#[cfg(feature = "pure")]
+pub mod pure;
 mod utils;
 
 #[doc(inline)]
 pub use chart::Chart;
 #[doc(inline)]
 pub use error::Error;
+
+#[cfg(feature = "native")]
 pub use native::ChartWidget;
 
+pub use event::MouseEventCallback;
 #[doc(no_inline)]
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 #[doc(no_inline)]
 pub use plotters_backend::DrawingBackend;
-
-impl<'a, Message, C> From<C> for ChartWidget<Message, C>
-where
-    Message: 'static,
-    C: Chart<Message>,
-{
-    #[inline]
-    fn from(chart: C) -> ChartWidget<Message, C> {
-        ChartWidget::new(chart)
-    }
-}

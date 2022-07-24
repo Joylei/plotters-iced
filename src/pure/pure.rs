@@ -4,13 +4,12 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
+use crate::{renderer::Renderer, Chart, MouseEventCallback};
 use core::marker::PhantomData;
 use iced_graphics::renderer::Style;
-use iced_native::{
-    event, Clipboard, Element, Font, Layout, Length, Point, Rectangle, Shell, Size, Widget,
-};
-
-use crate::{renderer::Renderer, Chart, MouseEventCallback};
+use iced_native::{event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size};
+use iced_pure::widget::tree::Tree;
+use iced_pure::{Element, Widget};
 use plotters_backend::{FontFamily, FontStyle};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
@@ -70,7 +69,7 @@ where
     }
 }
 
-impl<Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<Message, C>
+impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<Message, C>
 where
     C: Chart<Message>,
     Renderer: self::Renderer,
@@ -99,9 +98,10 @@ where
     #[inline]
     fn draw(
         &self,
+        _state: &Tree,
         renderer: &mut Renderer,
         style: &Style,
-        layout: Layout<'_>,
+        layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
     ) {
@@ -118,6 +118,7 @@ where
     #[inline]
     fn on_event(
         &mut self,
+        _state: &mut Tree,
         event: iced_native::Event,
         layout: Layout<'_>,
         cursor_position: Point,

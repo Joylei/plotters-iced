@@ -93,8 +93,8 @@ impl Application for State {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-            use std::time::Duration;
-            iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
+        use std::time::Duration;
+        iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
     }
 }
 

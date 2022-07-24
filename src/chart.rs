@@ -97,7 +97,7 @@ pub trait Chart<Message> {
     ///
     /// ## Example
     /// ```rust,ignore
-    /// 
+    ///
     /// impl Chart<Message> for CpuUsageChart {
     ///
     ///       #[inline]
