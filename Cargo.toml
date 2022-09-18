@@ -39,6 +39,7 @@ plotters = { version = "0.3", default_features = false, features = [
 ] }
 iced = { version = "0.4.2", features = ["canvas", "tokio", "pure"] }
 chrono = { version = "0.4", default-features = false }
+rand = "0.8"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 sysinfo = { version = "0.23", default_features = false }
