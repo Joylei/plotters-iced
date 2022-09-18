@@ -33,8 +33,11 @@ use plotters_iced::{plotters_backend, Chart, ChartWidget, DrawingArea};
 
 const TITLE_FONT_SIZE: u16 = 22;
 
+// antialiasing issue: https://github.com/iced-rs/iced/issues/1159
+
 fn main() {
     State::run(Settings {
+        #[cfg(not(target_arch = "wasm32"))]
         antialiasing: true,
         ..Settings::default()
     })
