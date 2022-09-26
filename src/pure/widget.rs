@@ -4,16 +4,21 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use crate::{renderer::Renderer, Chart, MouseEventCallback};
+use super::Chart;
+use super::Renderer;
+use crate::MouseEventCallback;
 use core::marker::PhantomData;
-use iced_graphics::renderer::Style;
+use iced_graphics::{
+    canvas::{Cursor, Event},
+    renderer::Style,
+};
 use iced_native::{event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size};
-use iced_pure::widget::tree::Tree;
+use iced_pure::widget::tree::{self, Tree};
 use iced_pure::{Element, Widget};
 use plotters_backend::{FontFamily, FontStyle};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
-pub struct ChartWidget<Message, C>
+pub struct ChartWidget<'a, Message, Renderer, C>
 where
     C: Chart<Message>,
 {
@@ -22,14 +27,13 @@ where
     height: Length,
     font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
     on_mouse_event: Option<MouseEventCallback<Message>>,
-    _marker: PhantomData<Message>,
+    _marker: PhantomData<&'a (Renderer, Message)>,
 }
 
-impl<'a, Message, C> ChartWidget<Message, C>
+impl<'a, Message, Renderer, C> ChartWidget<'a, Message, Renderer, C>
 where
     C: Chart<Message> + 'a,
 {
-    #[inline(always)]
     pub fn new(chart: C) -> Self {
         Self {
             chart,
@@ -41,19 +45,16 @@ where
         }
     }
 
-    #[inline(always)]
     pub fn width(mut self, width: Length) -> Self {
         self.width = width;
         self
     }
 
-    #[inline(always)]
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
         self
     }
 
-    #[inline(always)]
     pub fn resolve_font(
         mut self,
         resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
@@ -61,15 +62,9 @@ where
         self.font_resolver = Box::new(resolver);
         self
     }
-
-    #[inline(always)]
-    pub fn on_mouse_event(mut self, callback: MouseEventCallback<Message>) -> Self {
-        self.on_mouse_event = Some(callback);
-        self
-    }
 }
 
-impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<Message, C>
+impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<'a, Message, Renderer, C>
 where
     C: Chart<Message>,
     Renderer: self::Renderer,
@@ -80,6 +75,15 @@ where
 
     fn height(&self) -> Length {
         self.height
+    }
+
+    fn tag(&self) -> iced_pure::widget::tree::Tag {
+        struct Tag<T>(T);
+        tree::Tag::of::<Tag<C::State>>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(C::State::default())
     }
 
     #[inline]
@@ -98,14 +102,16 @@ where
     #[inline]
     fn draw(
         &self,
-        _state: &Tree,
+        tree: &Tree,
         renderer: &mut Renderer,
         style: &Style,
         layout: iced_native::Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
     ) {
+        let state = tree.state.downcast_ref::<C::State>();
         renderer.draw_chart(
+            state,
             &self.chart,
             &self.font_resolver,
             style,
@@ -118,46 +124,63 @@ where
     #[inline]
     fn on_event(
         &mut self,
-        _state: &mut Tree,
+        tree: &mut Tree,
         event: iced_native::Event,
         layout: Layout<'_>,
         cursor_position: Point,
-        renderer: &Renderer,
-        clipboard: &mut dyn Clipboard,
+        _renderer: &Renderer,
+        _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
     ) -> event::Status {
-        if let iced_native::Event::Mouse(mouse_event) = &event {
-            if let Some(callback) = &self.on_mouse_event {
-                let bounds = layout.bounds();
-                if bounds.contains(cursor_position) {
-                    let p_origin = bounds.position();
-                    let p = cursor_position - p_origin;
-                    if let Some(message) = callback(*mouse_event, Point::new(p.x, p.y)) {
-                        shell.publish(message);
-                        return event::Status::Captured;
-                    }
-                }
-            }
-        }
+        let bounds = layout.bounds();
+        let canvas_event = match event {
+            iced_native::Event::Mouse(mouse_event) => Some(Event::Mouse(mouse_event)),
+            iced_native::Event::Keyboard(keyboard_event) => Some(Event::Keyboard(keyboard_event)),
+            _ => None,
+        };
+        let cursor = Cursor::Available(cursor_position);
+        if let Some(canvas_event) = canvas_event {
+            let state = tree.state.downcast_mut::<C::State>();
 
-        renderer.on_event(
-            &mut self.chart,
-            event,
-            layout,
-            cursor_position,
-            clipboard,
-            shell,
-        )
+            let (event_status, message) = self.chart.update(state, canvas_event, bounds, cursor);
+
+            if let Some(message) = message {
+                shell.publish(message);
+            }
+
+            return event_status;
+        }
+        event::Status::Ignored
+    }
+
+    fn mouse_interaction(
+        &self,
+        tree: &Tree,
+        layout: Layout<'_>,
+        cursor_position: Point,
+        _viewport: &Rectangle,
+        _renderer: &Renderer,
+    ) -> iced_native::mouse::Interaction {
+        let state = tree.state.downcast_ref::<C::State>();
+        let bounds = layout.bounds();
+        //let cursor = Cursor::from_window_position(cursor_position);
+        let cursor = if cursor_position.x <= 0_f32 || cursor_position.y <= 0_f32 {
+            Cursor::Unavailable
+        } else {
+            Cursor::Available(cursor_position)
+        };
+        self.chart.mouse_interaction(state, bounds, cursor)
     }
 }
 
-impl<'a, Message, Renderer, C> From<ChartWidget<Message, C>> for Element<'a, Message, Renderer>
+impl<'a, Message, Renderer, C> From<ChartWidget<'a, Message, Renderer, C>>
+    for Element<'a, Message, Renderer>
 where
     Message: 'a,
     C: Chart<Message> + 'a,
     Renderer: self::Renderer,
 {
-    fn from(widget: ChartWidget<Message, C>) -> Self {
+    fn from(widget: ChartWidget<'a, Message, Renderer, C>) -> Self {
         Element::new(widget)
     }
 }

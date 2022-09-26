@@ -20,7 +20,7 @@ members = [".", "examples/split-chart"]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
 iced_native = "0.5"
-iced_graphics = { version = "0.3", features = ["canvas"] }
+iced_graphics = { version = "0.3", features = ["canvas", "pure"] }
 iced_pure = { version = "0.2", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -46,5 +46,10 @@ sysinfo = { version = "0.23", default_features = false }
 
 [features]
 default = ["native"]
-pure = ["iced_pure"]
+pure = ["iced_pure", "iced/pure"]
 native = []
+
+[dev-dependencies.plotters-iced]
+path = "."
+version = "*"
+features = ["pure"]
