@@ -30,7 +30,6 @@ impl<'a, Message, C> ChartWidget<Message, C>
 where
     C: Chart<Message> + 'a,
 {
-    #[inline(always)]
     pub fn new(chart: C) -> Self {
         Self {
             chart,
@@ -42,19 +41,16 @@ where
         }
     }
 
-    #[inline(always)]
     pub fn width(mut self, width: Length) -> Self {
         self.width = width;
         self
     }
 
-    #[inline(always)]
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
         self
     }
 
-    #[inline(always)]
     pub fn resolve_font(
         mut self,
         resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
@@ -62,8 +58,7 @@ where
         self.font_resolver = Box::new(resolver);
         self
     }
-
-    #[inline(always)]
+    #[deprecated]
     pub fn on_mouse_event(mut self, callback: MouseEventCallback<Message>) -> Self {
         self.on_mouse_event = Some(callback);
         self

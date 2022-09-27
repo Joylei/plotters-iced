@@ -5,7 +5,7 @@
 // License: MIT
 
 use iced::{
-    canvas::{Cache, Frame, Geometry},
+    canvas::{Cache, Cursor, Frame, Geometry},
     executor, Alignment, Application, Column, Command, Container, Element, Length, Point, Size,
 };
 use plotters::{
@@ -97,10 +97,7 @@ impl ArtChart {
     fn view(&mut self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
-            .height(Length::Fill)
-            .on_mouse_event(Box::new(|event, point| {
-                Some(Message::MouseEvent(event, point))
-            }));
+            .height(Length::Fill);
 
         chart.into()
     }
@@ -225,6 +222,28 @@ impl Chart<Message> for ArtChart {
         }
 
         *self.spec.borrow_mut() = Some(chart.as_coord_spec().clone());
+    }
+
+    fn update(
+        &mut self,
+        event: iced::canvas::Event,
+        bounds: iced::Rectangle,
+        cursor: iced::canvas::Cursor,
+    ) -> (iced_native::event::Status, Option<Message>) {
+        if let Cursor::Available(point) = cursor {
+            match event {
+                iced::canvas::Event::Mouse(evt) if bounds.contains(point) => {
+                    let p_origin = bounds.position();
+                    let p = point - p_origin;
+                    return (
+                        iced_native::event::Status::Captured,
+                        Some(Message::MouseEvent(evt, Point::new(p.x, p.y))),
+                    );
+                }
+                _ => {}
+            }
+        }
+        (iced_native::event::Status::Ignored, None)
     }
 }
 
