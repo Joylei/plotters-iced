@@ -7,12 +7,8 @@
 use super::Chart;
 use super::Renderer;
 use crate::utils::cursor_from_window_position;
-use crate::MouseEventCallback;
 use core::marker::PhantomData;
-use iced_graphics::{
-    canvas::{Cursor, Event},
-    renderer::Style,
-};
+use iced_graphics::{canvas::Event, renderer::Style};
 use iced_native::{event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size};
 use iced_pure::widget::tree::{self, Tree};
 use iced_pure::{Element, Widget};
@@ -27,7 +23,6 @@ where
     width: Length,
     height: Length,
     font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
-    on_mouse_event: Option<MouseEventCallback<Message>>,
     _marker: PhantomData<&'a (Renderer, Message)>,
 }
 
@@ -35,27 +30,30 @@ impl<'a, Message, Renderer, C> ChartWidget<'a, Message, Renderer, C>
 where
     C: Chart<Message> + 'a,
 {
+    /// create a new [`ChartWidget`]
     pub fn new(chart: C) -> Self {
         Self {
             chart,
             width: Length::Fill,
             height: Length::Fill,
             font_resolver: Box::new(|_, _| Default::default()),
-            on_mouse_event: None,
             _marker: Default::default(),
         }
     }
 
+    /// set width
     pub fn width(mut self, width: Length) -> Self {
         self.width = width;
         self
     }
 
+    /// set height
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
         self
     }
 
+    /// set font resolver
     pub fn resolve_font(
         mut self,
         resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,

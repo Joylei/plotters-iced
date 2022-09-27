@@ -74,10 +74,10 @@ pub use chart::Chart;
 #[doc(inline)]
 pub use error::Error;
 
+#[deprecated]
+pub use event::MouseEventCallback;
 #[cfg(feature = "native")]
 pub use native::ChartWidget;
-
-pub use event::MouseEventCallback;
 #[doc(no_inline)]
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 #[doc(no_inline)]
