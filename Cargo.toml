@@ -51,5 +51,5 @@ native = []
 
 [dev-dependencies.plotters-iced]
 path = "."
-version = "*"
+version = "0.3"
 features = ["pure"]
