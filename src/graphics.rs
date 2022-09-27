@@ -8,9 +8,7 @@ use super::backend::IcedChartBackend;
 use crate::renderer::Renderer as ChartRenderer;
 use crate::utils::cursor_from_window_position;
 use crate::Chart;
-use iced_graphics::{
-    backend, canvas::Cursor, canvas::Event, renderer::Style, Backend, Primitive, Renderer,
-};
+use iced_graphics::{backend, canvas::Event, renderer::Style, Backend, Primitive, Renderer};
 use iced_native::{event, Font, Point, Rectangle, Shell, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
