@@ -6,9 +6,10 @@
 
 use super::backend::IcedChartBackend;
 use crate::renderer::Renderer as ChartRenderer;
+use crate::utils::cursor_from_window_position;
 use crate::Chart;
 use iced_graphics::{
-    backend, canvas, canvas::Cursor, renderer::Style, Backend, Primitive, Renderer,
+    backend, canvas::Cursor, canvas::Event, renderer::Style, Backend, Primitive, Renderer,
 };
 use iced_native::{event, Font, Point, Rectangle, Shell, Vector};
 use plotters::prelude::DrawingArea;
@@ -52,16 +53,13 @@ impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
         messages: &mut Shell<'_, Message>,
     ) -> iced_native::event::Status {
         let bounds = layout.bounds();
-
         let canvas_event = match event {
-            iced_native::Event::Mouse(mouse_event) => Some(canvas::Event::Mouse(mouse_event)),
-            iced_native::Event::Keyboard(keyboard_event) => {
-                Some(canvas::Event::Keyboard(keyboard_event))
-            }
+            iced_native::Event::Mouse(mouse_event) => Some(Event::Mouse(mouse_event)),
+            iced_native::Event::Keyboard(keyboard_event) => Some(Event::Keyboard(keyboard_event)),
             _ => None,
         };
+        let cursor = cursor_from_window_position(cursor_position);
         if let Some(canvas_event) = canvas_event {
-            let cursor = Cursor::Available(cursor_position);
             let (status, message) = chart.update(canvas_event, bounds, cursor);
             if let Some(m) = message {
                 messages.publish(m);

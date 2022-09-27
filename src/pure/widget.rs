@@ -6,6 +6,7 @@
 
 use super::Chart;
 use super::Renderer;
+use crate::utils::cursor_from_window_position;
 use crate::MouseEventCallback;
 use core::marker::PhantomData;
 use iced_graphics::{
@@ -138,7 +139,7 @@ where
             iced_native::Event::Keyboard(keyboard_event) => Some(Event::Keyboard(keyboard_event)),
             _ => None,
         };
-        let cursor = Cursor::Available(cursor_position);
+        let cursor = cursor_from_window_position(cursor_position);
         if let Some(canvas_event) = canvas_event {
             let state = tree.state.downcast_mut::<C::State>();
 
@@ -147,7 +148,6 @@ where
             if let Some(message) = message {
                 shell.publish(message);
             }
-
             return event_status;
         }
         event::Status::Ignored
@@ -163,12 +163,7 @@ where
     ) -> iced_native::mouse::Interaction {
         let state = tree.state.downcast_ref::<C::State>();
         let bounds = layout.bounds();
-        //let cursor = Cursor::from_window_position(cursor_position);
-        let cursor = if cursor_position.x <= 0_f32 || cursor_position.y <= 0_f32 {
-            Cursor::Unavailable
-        } else {
-            Cursor::Available(cursor_position)
-        };
+        let cursor = cursor_from_window_position(cursor_position);
         self.chart.mouse_interaction(state, bounds, cursor)
     }
 }
