@@ -19,7 +19,7 @@ use plotters_backend::DrawingBackend;
 use plotters_iced::{Chart, ChartWidget};
 use std::collections::VecDeque;
 use std::time::{Duration, Instant};
-use sysinfo::{ProcessorExt, RefreshKind, System, SystemExt};
+use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
 
 const PLOT_SECONDS: usize = 60; //1 min
 const TITLE_FONT_SIZE: u16 = 22;
@@ -122,7 +122,9 @@ struct SystemChart {
 impl Default for SystemChart {
     fn default() -> Self {
         Self {
-            sys: System::new_with_specifics(RefreshKind::new().with_cpu()),
+            sys: System::new_with_specifics(
+                RefreshKind::new().with_cpu(CpuRefreshKind::new().with_cpu_usage()),
+            ),
             last_sample_time: Instant::now(),
             items_per_row: 3,
             processors: Default::default(),
@@ -152,7 +154,7 @@ impl SystemChart {
         self.sys.refresh_cpu();
         self.last_sample_time = Instant::now();
         let now = Utc::now();
-        let data = self.sys.processors().iter().map(|v| v.cpu_usage() as i32);
+        let data = self.sys.cpus().iter().map(|v| v.cpu_usage() as i32);
 
         //check if initialized
         if !self.is_initialized() {
