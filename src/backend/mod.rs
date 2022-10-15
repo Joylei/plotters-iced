@@ -4,11 +4,8 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-#[cfg(not(target_arch = "wasm32"))]
-mod triangulate;
-mod utils;
-
 use crate::error::Error;
+use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
 use iced_graphics::{
     alignment::{Horizontal, Vertical},
     backend,
@@ -28,9 +25,6 @@ use plotters_backend::{
     FontStyle,
     //FontTransform,
 };
-use utils::converter::{cvt_color, cvt_stroke, CvtPoint};
-#[cfg(not(target_arch = "wasm32"))]
-use utils::{path, shape};
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B, F>
@@ -180,57 +174,6 @@ where
         Ok(())
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
-    #[inline]
-    fn fill_polygon<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
-        &mut self,
-        vert: I,
-        style: &S,
-    ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
-        if style.color().alpha == 0.0 {
-            return Ok(());
-        }
-        // Paint a simplified path, where empty areas are removed and un-necessary points are \
-        //   cleared. This is required for triangulation to work properly, and it reduces \
-        //   the number of triangles on screen to a strict minimum.
-        let simplified_path: Vec<_> =
-            path::PathSimplifier::from(vert.into_iter().map(|(x, y)| [x, y])).collect();
-
-        // Find closed shapes (eg. when the plot area goes from positive to negative, we need \
-        //   to split the path into two distinct paths, otherwise we will not be able to \
-        //   triangulate properly, and thus we will not be able to fill the shape)
-        if let Ok(mut shape_splitter) = shape::ShapeSplitter::try_from(&simplified_path) {
-            // Triangulate the polygon points, giving back a list of triangles that can be \
-            //   filled into a contiguous area.
-            // Notice: this method takes into account concave shapes
-
-            let path = canvas::Path::new(move |builder| {
-                for shape_points in shape_splitter.collect() {
-                    // Is that enough points to form at least a triangle?
-                    if shape_points.len() < 3 {
-                        continue;
-                    }
-                    let triangles = triangulate::triangulate_points(shape_points.iter());
-                    for index in 0..triangles.size() {
-                        let shape = triangles.get_triangle(index);
-                        let points = shape.points.iter().copied();
-                        for (i, point) in points.into_iter().enumerate() {
-                            if i > 0 {
-                                builder.line_to(point.cvt_point());
-                            } else {
-                                builder.move_to(point.cvt_point());
-                            }
-                        }
-                        builder.close();
-                    }
-                }
-            });
-            self.frame.fill(&path, cvt_color(&style.color()));
-        }
-        Ok(())
-    }
-
-    #[cfg(target_arch = "wasm32")]
     #[inline]
     fn fill_polygon<S: BackendStyle, I: IntoIterator<Item = BackendCoord>>(
         &mut self,
