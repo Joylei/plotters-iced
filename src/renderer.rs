@@ -4,16 +4,17 @@ use iced_native::{event, Clipboard, Font, Layout, Point, Rectangle, Shell};
 use plotters_backend::{FontFamily, FontStyle};
 
 pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
-    fn draw_chart<Message, C>(
+    fn draw_chart<Message, C, F>(
         &mut self,
         chart: &C,
-        font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
+        font_resolver: &F,
         defaults: &Style,
         layout: Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
     ) where
-        C: Chart<Message>;
+        C: Chart<Message>,
+        F: Fn(FontFamily, FontStyle) -> Font;
 
     fn on_event<Message, C: Chart<Message>>(
         &self,

@@ -15,16 +15,17 @@ use plotters_backend::{FontFamily, FontStyle};
 
 impl<B: Backend + backend::Text> ChartRenderer for Renderer<B> {
     #[inline]
-    fn draw_chart<Message, C>(
+    fn draw_chart<Message, C, F>(
         &mut self,
         chart: &C,
-        font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
+        font_resolver: &F,
         _style: &Style,
         layout: iced_native::Layout<'_>,
         _cursor_position: Point,
         _viewport: &Rectangle,
     ) where
         C: Chart<Message>,
+        F: Fn(FontFamily, FontStyle) -> Font,
     {
         let bounds = layout.bounds();
         let geometry = chart.draw(bounds.size(), |frame| {

@@ -13,17 +13,18 @@ use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
 pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
-    fn draw_chart<Message, C>(
+    fn draw_chart<Message, C, F>(
         &mut self,
         state: &C::State,
         chart: &C,
-        font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
+        font_resolver: &F,
         defaults: &Style,
         layout: Layout<'_>,
         cursor_position: Point,
         viewport: &Rectangle,
     ) where
-        C: Chart<Message>;
+        C: Chart<Message>,
+        F: Fn(FontFamily, FontStyle) -> Font;
 }
 
 impl<B: Backend + backend::Text> Renderer for iced_graphics::Renderer<B> {
@@ -31,13 +32,14 @@ impl<B: Backend + backend::Text> Renderer for iced_graphics::Renderer<B> {
         &mut self,
         state: &C::State,
         chart: &C,
-        font_resolver: &Box<dyn Fn(FontFamily, FontStyle) -> Font>,
+        font_resolver: &F,
         _style: &Style,
         layout: Layout<'_>,
         _cursor_position: Point,
         _viewport: &Rectangle,
     ) where
         C: Chart<Message>,
+        F: Fn(FontFamily, FontStyle) -> Font,
     {
         let bounds = layout.bounds();
         if bounds.width < 1.0 || bounds.height < 1.0 {

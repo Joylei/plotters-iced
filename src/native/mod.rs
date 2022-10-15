@@ -4,12 +4,12 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-mod native;
+mod widget;
 
 use crate::Chart;
 
 /// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
-pub type ChartWidget<Message, C> = native::ChartWidget<Message, C>;
+pub type ChartWidget<Message, C> = widget::ChartWidget<Message, C>;
 
 impl<'a, Message, C> From<C> for ChartWidget<Message, C>
 where
