@@ -1,6 +1,6 @@
 [package]
 name = "plotters-iced"
-version = "0.3.3"
+version = "0.4.0"
 description = "Iced backend for Plotters"
 readme = "README.md"
 license = "MIT"
@@ -19,9 +19,10 @@ members = [".", "examples/split-chart"]
 [dependencies]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
-iced_native = "0.5"
-iced_graphics = { version = "0.3", features = ["canvas", "pure"] }
-iced_pure = { version = "0.2", optional = true }
+iced_native = { version = "0.5", git = "https://github.com/iced-rs/iced.git" }
+iced_graphics = { version = "0.3", features = [
+    "canvas",
+], git = "https://github.com/iced-rs/iced.git" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 num-traits = "0.2"
@@ -37,19 +38,12 @@ plotters = { version = "0.3", default_features = false, features = [
     "line_series",
     "point_series",
 ] }
-iced = { version = "0.4.2", features = ["canvas", "tokio", "pure"] }
+iced = { version = "*", features = [
+    "canvas",
+    "tokio",
+], git = "https://github.com/iced-rs/iced.git" }
 chrono = { version = "0.4", default-features = false }
 rand = "0.8"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 sysinfo = { version = "0.26", default_features = false }
-
-[features]
-default = ["native"]
-pure = ["iced_pure", "iced/pure"]
-native = []
-
-[dev-dependencies.plotters-iced]
-path = "."
-version = "0.3"
-features = ["pure"]

@@ -3,7 +3,8 @@
 // Iced backend for Plotters
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
-use iced_graphics::canvas;
+
+use iced_graphics::widget::canvas;
 use iced_native::{Color, Point};
 use plotters_backend::{BackendColor, BackendCoord, BackendStyle};
 

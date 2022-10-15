@@ -4,7 +4,7 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use iced_graphics::canvas::Cursor;
+use iced_graphics::widget::canvas::Cursor;
 use iced_native::Point;
 
 pub(crate) trait AndExt {

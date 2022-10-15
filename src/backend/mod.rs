@@ -11,7 +11,9 @@ mod utils;
 use crate::error::Error;
 use iced_graphics::{
     alignment::{Horizontal, Vertical},
-    backend, canvas, Backend, Size,
+    backend,
+    widget::canvas,
+    Backend, Size,
 };
 use iced_native::Font;
 use plotters_backend::{

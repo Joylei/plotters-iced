@@ -3,15 +3,19 @@
 // Iced backend for Plotters
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
+
 extern crate iced;
 extern crate plotters;
 extern crate rand;
 
 use chrono::{DateTime, Utc};
 use iced::{
-    canvas::{Cache, Frame, Geometry},
-    executor, Alignment, Application, Column, Command, Container, Element, Font, Length, Settings,
-    Size, Subscription,
+    executor,
+    widget::{
+        canvas::{Cache, Frame, Geometry},
+        Column, Container, Text,
+    },
+    Alignment, Application, Command, Element, Font, Length, Settings, Size, Subscription, Theme,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -37,10 +41,7 @@ fn main() {
 }
 
 #[derive(Debug)]
-enum Message {
-    /// message that cause charts' data lazily updated
-    Tick,
-}
+enum Message {}
 
 struct State {
     chart: ExampleChart,
@@ -50,6 +51,7 @@ impl Application for State {
     type Message = self::Message;
     type Executor = executor::Default;
     type Flags = ();
+    type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
@@ -68,21 +70,20 @@ impl Application for State {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let content = Column::new()
             .spacing(20)
             .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(
-                iced::Text::new("Iced test chart")
+                Text::new("Iced test chart")
                     .size(TITLE_FONT_SIZE)
                     .font(FONT_BOLD),
             )
             .push(self.chart.view());
 
         Container::new(content)
-            //.style(style::Container)
             .width(Length::Fill)
             .height(Length::Fill)
             .padding(5)
@@ -110,7 +111,7 @@ impl ExampleChart {
         }
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill);
@@ -120,6 +121,7 @@ impl ExampleChart {
 }
 
 impl Chart<Message> for ExampleChart {
+    type State = ();
     // fn update(
     //     &mut self,
     //     event: Event,
@@ -135,7 +137,7 @@ impl Chart<Message> for ExampleChart {
         self.cache.draw(bounds, draw_fn)
     }
 
-    fn build_chart<DB: DrawingBackend>(&self, mut chart: ChartBuilder<DB>) {
+    fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart: ChartBuilder<DB>) {
         use plotters::{prelude::*, style::Color};
 
         const PLOT_LINE_COLOR: RGBColor = RGBColor(0, 175, 255);
@@ -167,14 +169,14 @@ impl Chart<Message> for ExampleChart {
 
         chart
             .configure_mesh()
-            .bold_line_style(&plotters::style::colors::WHITE.mix(0.1))
-            .light_line_style(&plotters::style::colors::WHITE.mix(0.05))
-            .axis_style(ShapeStyle::from(&plotters::style::colors::WHITE.mix(0.45)).stroke_width(1))
+            .bold_line_style(&plotters::style::colors::BLUE.mix(0.1))
+            .light_line_style(&plotters::style::colors::BLUE.mix(0.05))
+            .axis_style(ShapeStyle::from(&plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
                 ("sans-serif", 15)
                     .into_font()
-                    .color(&plotters::style::colors::WHITE.mix(0.65))
+                    .color(&plotters::style::colors::BLUE.mix(0.65))
                     .transform(FontTransform::Rotate90),
             )
             .y_label_formatter(&|y| format!("{}", y))
@@ -220,19 +222,4 @@ fn generate_data() -> Vec<(DateTime<Utc>, f32)> {
     data.sort_by_cached_key(|x| x.0);
     dbg!(&data[..100]);
     data
-}
-
-mod style {
-    use iced::Color;
-
-    pub struct ChartContainer;
-    impl iced::container::StyleSheet for ChartContainer {
-        fn style(&self) -> iced::container::Style {
-            iced::container::Style {
-                background: Some(Color::BLACK.into()),
-                text_color: Some(Color::WHITE),
-                ..Default::default()
-            }
-        }
-    }
 }
