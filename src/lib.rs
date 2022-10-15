@@ -57,6 +57,7 @@ mod backend;
 mod chart;
 mod error;
 mod renderer;
+pub mod sample;
 mod utils;
 mod widget;
 

@@ -19,7 +19,10 @@ use iced::{
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
-use plotters_iced::{Chart, ChartWidget};
+use plotters_iced::{
+    sample::{DataPoint, LttbSource},
+    Chart, ChartWidget,
+};
 use rand::Rng;
 use std::collections::VecDeque;
 use std::time::Duration;
@@ -40,6 +43,18 @@ fn main() {
     .unwrap();
 }
 
+struct Wrapper<'a>(&'a DateTime<Utc>, &'a f32);
+
+impl DataPoint for Wrapper<'_> {
+    fn x(&self) -> f64 {
+        self.0.timestamp() as f64
+    }
+
+    fn y(&self) -> f64 {
+        *self.1 as f64
+    }
+}
+
 #[derive(Debug)]
 enum Message {}
 
@@ -54,9 +69,15 @@ impl Application for State {
     type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let data = generate_data();
+        let sampled: Vec<_> = (&data[..])
+            .cast(|v| Wrapper(&v.0, &v.1))
+            .lttb(5000)
+            .map(|w| (*w.0, *w.1))
+            .collect();
         (
             Self {
-                chart: ExampleChart::new(generate_data().into_iter()),
+                chart: ExampleChart::new(sampled.into_iter()),
             },
             Command::none(),
         )
@@ -158,8 +179,8 @@ impl Chart<Message> for ExampleChart {
             .0
             .checked_sub_signed(chrono::Duration::from_std(Duration::from_secs(10)).unwrap())
             .unwrap();
-        dbg!(&newest_time);
-        dbg!(&oldest_time);
+        //dbg!(&newest_time);
+        //dbg!(&oldest_time);
         let mut chart = chart
             .x_label_area_size(0)
             .y_label_area_size(28)
@@ -220,6 +241,6 @@ fn generate_data() -> Vec<(DateTime<Utc>, f32)> {
         data.push((time, value));
     }
     data.sort_by_cached_key(|x| x.0);
-    dbg!(&data[..100]);
+    //dbg!(&data[..100]);
     data
 }
