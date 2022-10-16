@@ -44,6 +44,7 @@ iced = { version = "*", features = [
 ], git = "https://github.com/iced-rs/iced.git" }
 chrono = { version = "0.4", default-features = false }
 rand = "0.8"
+tokio = { version = "1", features = ["rt"], default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 sysinfo = { version = "0.26", default_features = false }

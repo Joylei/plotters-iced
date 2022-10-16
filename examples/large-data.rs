@@ -7,6 +7,7 @@
 extern crate iced;
 extern crate plotters;
 extern crate rand;
+extern crate tokio;
 
 use chrono::{DateTime, Utc};
 use iced::{
@@ -20,12 +21,12 @@ use iced::{
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
 use plotters_iced::{
-    sample::{DataPoint, LttbSource},
+    sample::lttb::{DataPoint, LttbSource},
     Chart, ChartWidget,
 };
 use rand::Rng;
-use std::collections::VecDeque;
 use std::time::Duration;
+use std::{collections::VecDeque, time::Instant};
 
 const TITLE_FONT_SIZE: u16 = 22;
 
@@ -57,10 +58,13 @@ impl DataPoint for Wrapper<'_> {
 }
 
 #[derive(Debug)]
-enum Message {}
+enum Message {
+    DataLoaded(Vec<(DateTime<Utc>, f32)>),
+    Sampled(Vec<(DateTime<Utc>, f32)>),
+}
 
 struct State {
-    chart: ExampleChart,
+    chart: Option<ExampleChart>,
 }
 
 impl Application for State {
@@ -70,17 +74,11 @@ impl Application for State {
     type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        let data = generate_data();
-        let sampled: Vec<_> = (&data[..])
-            .cast(|v| Wrapper(&v.0, &v.1))
-            .lttb(5000)
-            .map(|w| (*w.0, *w.1))
-            .collect();
         (
-            Self {
-                chart: ExampleChart::new(sampled.into_iter()),
-            },
-            Command::none(),
+            Self { chart: None },
+            Command::perform(tokio::task::spawn_blocking(generate_data), |data| {
+                Message::DataLoaded(data.unwrap())
+            }),
         )
     }
 
@@ -88,8 +86,26 @@ impl Application for State {
         "Large Data Example".to_owned()
     }
 
-    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
-        Command::none()
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        match message {
+            Message::DataLoaded(data) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    let now = Instant::now();
+                    let sampled: Vec<_> = (&data[..])
+                        .cast(|v| Wrapper(&v.0, &v.1))
+                        .lttb(1000)
+                        .map(|w| (*w.0, *w.1))
+                        .collect();
+                    dbg!(now.elapsed().as_millis());
+                    sampled
+                }),
+                |data| Message::Sampled(data.unwrap()),
+            ),
+            Message::Sampled(sampled) => {
+                self.chart = Some(ExampleChart::new(sampled.into_iter()));
+                Command::none()
+            }
+        }
     }
 
     fn view(&self) -> Element<'_, Self::Message> {
@@ -103,7 +119,10 @@ impl Application for State {
                     .size(TITLE_FONT_SIZE)
                     .font(FONT_BOLD),
             )
-            .push(self.chart.view());
+            .push(match self.chart {
+                Some(ref chart) => chart.view(),
+                None => Text::new("Loading...").into(),
+            });
 
         Container::new(content)
             .width(Length::Fill)
