@@ -8,19 +8,20 @@
 
 /// data point for [`LttbSource`]
 pub trait DataPoint {
-    /// x value
+    /// x value for sampling
     fn x(&self) -> f64;
-    /// y value
+    /// y value for sampling
     fn y(&self) -> f64;
 }
 
 impl<D: DataPoint> DataPoint for &D {
+    #[inline]
     fn x(&self) -> f64 {
-        DataPoint::x(*self)
+        (*self).x()
     }
 
     fn y(&self) -> f64 {
-        DataPoint::y(*self)
+        (*self).y()
     }
 }
 
@@ -32,10 +33,17 @@ pub trait LttbSource {
     /// length of [`LttbSource`]
     fn len(&self) -> usize;
 
+    /// is [`LttbSource`] empty
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// data item at  index `i`
     fn item_at(&self, i: usize) -> Self::Item;
 
-    /// map data item to another type
+    /// map data item to another type.
+    /// - if the data item type of [`LttbSource`] is not [`DataPoint`], lttb sampling can be used after casting
     fn cast<T, F>(self, f: F) -> Cast<Self, T, F>
     where
         Self: Sized,
@@ -52,18 +60,18 @@ pub trait LttbSource {
         Self::Item: DataPoint,
     {
         let is_sample = !(threshold >= self.len() || threshold < 3);
-        let len = self.len();
+        let every = if is_sample {
+            ((self.len() - 2) as f64) / ((threshold - 2) as f64)
+        } else {
+            0_f64
+        };
         LttbIterator {
             source: self,
             is_sample,
             idx: 0,
             a: 0,
             threshold,
-            every: if is_sample {
-                ((len - 2) as f64) / ((threshold - 2) as f64)
-            } else {
-                0_f64
-            },
+            every,
         }
     }
 }
@@ -93,7 +101,7 @@ where
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         let item = self.s.item_at(i);
-        (&self.f)(item)
+        (self.f)(item)
     }
 }
 
@@ -101,11 +109,11 @@ impl<'a, S: LttbSource> LttbSource for &'a S {
     type Item = S::Item;
     #[inline]
     fn len(&self) -> usize {
-        S::len(&self)
+        (*self).len()
     }
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
-        S::item_at(&self, i)
+        (*self).item_at(i)
     }
 }
 
@@ -114,9 +122,9 @@ pub struct LttbIterator<S: LttbSource> {
     source: S,
     is_sample: bool,
     idx: usize,
-    a: usize,
     threshold: usize,
     every: f64,
+    a: usize,
 }
 
 impl<S: LttbSource> LttbIterator<S>
@@ -202,6 +210,15 @@ where
             None
         }
     }
+
+    #[inline]
+    fn remaining(&self) -> usize {
+        if self.is_sample {
+            self.threshold - self.idx
+        } else {
+            self.source.len() - self.idx
+        }
+    }
 }
 
 impl<S: LttbSource> Iterator for LttbIterator<S>
@@ -216,6 +233,21 @@ where
             self.next_no_sample()
         }
     }
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let size = self.remaining();
+        (size, Some(size))
+    }
+}
+
+impl<S: LttbSource> ExactSizeIterator for LttbIterator<S>
+where
+    S::Item: DataPoint,
+{
+    #[inline]
+    fn len(&self) -> usize {
+        self.remaining()
+    }
 }
 
 impl<'a, T> LttbSource for &'a [T] {
@@ -227,6 +259,18 @@ impl<'a, T> LttbSource for &'a [T] {
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         &self[i]
+    }
+}
+
+impl<T: Clone> LttbSource for [T] {
+    type Item = T;
+    #[inline]
+    fn len(&self) -> usize {
+        (*self).len()
+    }
+    #[inline]
+    fn item_at(&self, i: usize) -> Self::Item {
+        self[i].clone()
     }
 }
 
