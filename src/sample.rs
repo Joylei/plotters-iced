@@ -19,7 +19,7 @@ impl<D: DataPoint> DataPoint for &D {
     fn x(&self) -> f64 {
         (*self).x()
     }
-
+    #[inline]
     fn y(&self) -> f64 {
         (*self).y()
     }
@@ -98,6 +98,7 @@ where
     fn len(&self) -> usize {
         self.s.len()
     }
+
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         let item = self.s.item_at(i);
@@ -111,6 +112,7 @@ impl<'a, S: LttbSource> LttbSource for &'a S {
     fn len(&self) -> usize {
         (*self).len()
     }
+
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         (*self).item_at(i)
@@ -233,6 +235,7 @@ where
             self.next_no_sample()
         }
     }
+
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let size = self.remaining();
@@ -256,6 +259,7 @@ impl<'a, T> LttbSource for &'a [T] {
     fn len(&self) -> usize {
         (*self).len()
     }
+
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         &self[i]
@@ -268,6 +272,7 @@ impl<T: Clone> LttbSource for [T] {
     fn len(&self) -> usize {
         (*self).len()
     }
+
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         self[i].clone()
