@@ -1,9 +1,16 @@
-use std::ops::Index;
+// plotters-iced
+//
+// Iced backend for Plotters
+// Copyright: 2022, Joylei <leingliu@gmail.com>
+// License: MIT
+//
+// modified based on https://github.com/jeromefroe/lttb-rs
 
-/// https://github.com/jeromefroe/lttb-rs
-
+/// data point for [`LttbSource`]
 pub trait DataPoint {
+    /// x value
     fn x(&self) -> f64;
+    /// y value
     fn y(&self) -> f64;
 }
 
@@ -17,13 +24,18 @@ impl<D: DataPoint> DataPoint for &D {
     }
 }
 
+/// source for lttb sampling
 pub trait LttbSource {
+    /// data item of [`LttbSource`]
     type Item;
 
+    /// length of [`LttbSource`]
     fn len(&self) -> usize;
 
+    /// data item at  index `i`
     fn item_at(&self, i: usize) -> Self::Item;
 
+    /// map data item to another type
     fn cast<T, F>(self, f: F) -> Cast<Self, T, F>
     where
         Self: Sized,
@@ -33,13 +45,13 @@ pub trait LttbSource {
         Cast { s: self, f }
     }
 
-    /// lttb sample
+    /// lttb sampling
     fn lttb(self, threshold: usize) -> LttbIterator<Self>
     where
         Self: Sized,
         Self::Item: DataPoint,
     {
-        let is_sample = !(threshold >= self.len() || threshold == 0);
+        let is_sample = !(threshold >= self.len() || threshold < 3);
         let len = self.len();
         LttbIterator {
             source: self,
@@ -56,6 +68,7 @@ pub trait LttbSource {
     }
 }
 
+/// map data item to another type
 pub struct Cast<S, T, F>
 where
     S: LttbSource,
@@ -73,11 +86,11 @@ where
     F: Fn(S::Item) -> T,
 {
     type Item = T;
-
+    #[inline]
     fn len(&self) -> usize {
         self.s.len()
     }
-
+    #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         let item = self.s.item_at(i);
         (&self.f)(item)
@@ -86,16 +99,17 @@ where
 
 impl<'a, S: LttbSource> LttbSource for &'a S {
     type Item = S::Item;
-
+    #[inline]
     fn len(&self) -> usize {
         S::len(&self)
     }
-
+    #[inline]
     fn item_at(&self, i: usize) -> Self::Item {
         S::item_at(&self, i)
     }
 }
 
+/// iterator for [`LttbSource`]
 pub struct LttbIterator<S: LttbSource> {
     source: S,
     is_sample: bool,
@@ -208,11 +222,7 @@ impl<'a, T> LttbSource for &'a [T] {
     type Item = &'a T;
     #[inline]
     fn len(&self) -> usize {
-        #[inline]
-        fn slice_len<T>(a: &[T]) -> usize {
-            a.len()
-        }
-        slice_len(self)
+        (*self).len()
     }
     #[inline]
     fn item_at(&self, i: usize) -> Self::Item {

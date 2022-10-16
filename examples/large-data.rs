@@ -46,10 +46,11 @@ fn main() {
 struct Wrapper<'a>(&'a DateTime<Utc>, &'a f32);
 
 impl DataPoint for Wrapper<'_> {
+    #[inline]
     fn x(&self) -> f64 {
         self.0.timestamp() as f64
     }
-
+    #[inline]
     fn y(&self) -> f64 {
         *self.1 as f64
     }

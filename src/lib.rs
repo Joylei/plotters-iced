@@ -57,6 +57,7 @@ mod backend;
 mod chart;
 mod error;
 mod renderer;
+/// data point sampling
 pub mod sample;
 mod utils;
 mod widget;
