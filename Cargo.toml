@@ -19,8 +19,8 @@ members = [".", "examples/split-chart"]
 [dependencies]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
-iced_native = { version = "0.5", git = "https://github.com/iced-rs/iced.git" }
-iced_graphics = { version = "0.3", features = [
+iced_native = { version = "0.6", git = "https://github.com/iced-rs/iced.git" }
+iced_graphics = { version = "0.4", features = [
     "canvas",
 ], git = "https://github.com/iced-rs/iced.git" }
 
