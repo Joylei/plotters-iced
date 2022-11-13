@@ -210,9 +210,9 @@ impl Chart<Message> for ExampleChart {
 
         chart
             .configure_mesh()
-            .bold_line_style(&plotters::style::colors::BLUE.mix(0.1))
-            .light_line_style(&plotters::style::colors::BLUE.mix(0.05))
-            .axis_style(ShapeStyle::from(&plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
+            .bold_line_style(plotters::style::colors::BLUE.mix(0.1))
+            .light_line_style(plotters::style::colors::BLUE.mix(0.05))
+            .axis_style(ShapeStyle::from(plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
                 ("sans-serif", 15)
@@ -229,9 +229,9 @@ impl Chart<Message> for ExampleChart {
                 AreaSeries::new(
                     self.data_points.iter().cloned(),
                     0_f32,
-                    &PLOT_LINE_COLOR.mix(0.175),
+                    PLOT_LINE_COLOR.mix(0.175),
                 )
-                .border_style(ShapeStyle::from(&PLOT_LINE_COLOR).stroke_width(2)),
+                .border_style(ShapeStyle::from(PLOT_LINE_COLOR).stroke_width(2)),
             )
             .expect("failed to draw chart data");
     }

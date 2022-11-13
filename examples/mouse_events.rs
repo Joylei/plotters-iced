@@ -47,15 +47,11 @@ impl Application for State {
             Message::MouseEvent(event, point) => {
                 self.chart.set_current_position(point);
                 match event {
-                    iced::mouse::Event::ButtonPressed(button) => {
-                        if let iced::mouse::Button::Left = button {
-                            self.chart.set_down(true);
-                        }
+                    iced::mouse::Event::ButtonPressed(iced::mouse::Button::Left) => {
+                        self.chart.set_down(true);
                     }
-                    iced::mouse::Event::ButtonReleased(button) => {
-                        if let iced::mouse::Button::Left = button {
-                            self.chart.set_down(false);
-                        }
+                    iced::mouse::Event::ButtonReleased(iced::mouse::Button::Left) => {
+                        self.chart.set_down(false);
                     }
                     _ => {
                         // Do nothing
@@ -116,12 +112,12 @@ impl ArtChart {
 
     fn nearby(p0: (f32, f32), p1: (f32, f32)) -> bool {
         let delta = (p1.0 - p0.0, p1.1 - p0.1);
-        return (delta.0 * delta.0 + delta.1 * delta.1).sqrt() <= 1.0;
+        (delta.0 * delta.0 + delta.1 * delta.1).sqrt() <= 1.0
     }
 
     fn set_down(&mut self, new_is_down: bool) {
         if !self.is_down && new_is_down {
-            self.initial_down_position = self.current_position.clone();
+            self.initial_down_position = self.current_position;
         }
 
         if self.is_down && !new_is_down {
@@ -163,9 +159,9 @@ impl Chart<Message> for ArtChart {
 
         chart
             .configure_mesh()
-            .bold_line_style(&colors::BLACK.mix(0.1))
-            .light_line_style(&colors::BLACK.mix(0.05))
-            .axis_style(ShapeStyle::from(&colors::BLACK.mix(0.45)).stroke_width(1))
+            .bold_line_style(colors::BLACK.mix(0.1))
+            .light_line_style(colors::BLACK.mix(0.05))
+            .axis_style(ShapeStyle::from(colors::BLACK.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
                 ("sans-serif", 15)
@@ -181,7 +177,7 @@ impl Chart<Message> for ArtChart {
             .draw_series(
                 self.points
                     .iter()
-                    .map(|p| Circle::new(p.clone(), 5_i32, POINT_COLOR.filled())),
+                    .map(|p| Circle::new(*p, 5_i32, POINT_COLOR.filled())),
             )
             .expect("Failed to draw points");
 
@@ -201,7 +197,7 @@ impl Chart<Message> for ArtChart {
                 if Self::nearby(initial_p, current_p) {
                     chart
                         .draw_series(std::iter::once(Circle::new(
-                            current_p.clone(),
+                            current_p,
                             5_i32,
                             PREVIEW_COLOR.filled(),
                         )))
@@ -215,16 +211,14 @@ impl Chart<Message> for ArtChart {
                         .expect("Failed to draw preview line");
                 }
             }
-        } else {
-            if let Some(current_p) = self.current_position {
-                chart
-                    .draw_series(std::iter::once(Circle::new(
-                        current_p.clone(),
-                        5_i32,
-                        HOVER_COLOR.filled(),
-                    )))
-                    .expect("Failed to draw hover point");
-            }
+        } else if let Some(current_p) = self.current_position {
+            chart
+                .draw_series(std::iter::once(Circle::new(
+                    current_p,
+                    5_i32,
+                    HOVER_COLOR.filled(),
+                )))
+                .expect("Failed to draw hover point");
         }
 
         *self.spec.borrow_mut() = Some(chart.as_coord_spec().clone());

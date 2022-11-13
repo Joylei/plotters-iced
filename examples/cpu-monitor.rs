@@ -292,7 +292,7 @@ impl Chart<Message> for CpuUsageChart {
             .front()
             .unwrap_or(&(
                 chrono::DateTime::from_utc(
-                    chrono::NaiveDateTime::from_timestamp(0, 0),
+                    chrono::NaiveDateTime::from_timestamp_opt(0, 0).unwrap(),
                     chrono::Utc,
                 ),
                 0,
@@ -308,9 +308,9 @@ impl Chart<Message> for CpuUsageChart {
 
         chart
             .configure_mesh()
-            .bold_line_style(&plotters::style::colors::BLUE.mix(0.1))
-            .light_line_style(&plotters::style::colors::BLUE.mix(0.05))
-            .axis_style(ShapeStyle::from(&plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
+            .bold_line_style(plotters::style::colors::BLUE.mix(0.1))
+            .light_line_style(plotters::style::colors::BLUE.mix(0.05))
+            .axis_style(ShapeStyle::from(plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
                 ("sans-serif", 15)
@@ -327,9 +327,9 @@ impl Chart<Message> for CpuUsageChart {
                 AreaSeries::new(
                     self.data_points.iter().map(|x| (x.0, x.1 as i32)),
                     0,
-                    &PLOT_LINE_COLOR.mix(0.175),
+                    PLOT_LINE_COLOR.mix(0.175),
                 )
-                .border_style(ShapeStyle::from(&PLOT_LINE_COLOR).stroke_width(2)),
+                .border_style(ShapeStyle::from(PLOT_LINE_COLOR).stroke_width(2)),
             )
             .expect("failed to draw chart data");
     }
