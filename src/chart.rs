@@ -26,7 +26,6 @@ where
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         C::draw(self, size, f)
     }
-
     #[inline]
     fn update(
         &self,
@@ -37,7 +36,7 @@ where
     ) -> (Status, Option<Message>) {
         C::update(self, state, event, bounds, cursor)
     }
-
+    #[inline]
     fn mouse_interaction(
         &self,
         state: &Self::State,
@@ -56,7 +55,8 @@ where
 /// use plotters_iced::{Chart,ChartWidget};
 /// struct MyChart;
 /// impl Chart<Message> for MyChart {
-///     fn build_chart<DB:DrawingBackend>(&self, builder: ChartBuilder<DB>) {
+///     type State = ();
+///     fn build_chart<DB:DrawingBackend>(&self, state: &Self::State, builder: ChartBuilder<DB>) {
 ///         //build your chart here, please refer to plotters for more details
 ///     }
 /// }
@@ -90,8 +90,8 @@ pub trait Chart<Message> {
     ///
     /// impl Chart<Message> for MyChart {
     ///     // leave it empty
-    ///     fn build_chart<DB: DrawingBackend>(&self, builder: ChartBuilder<DB>){}
-    ///     fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>){
+    ///     fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, builder: ChartBuilder<DB>){}
+    ///     fn draw_chart<DB: DrawingBackend>(&self, state: &Self::State, root: DrawingArea<DB, Shift>){
     ///          let children = root.split_evenly((3,3));
     ///          for (area, color) in children.into_iter().zip(0..) {
     ///                area.fill(&Palette99::pick(color)).unwrap();

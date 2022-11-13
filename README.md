@@ -30,8 +30,8 @@ Include `plotters-iced` in your `Cargo.toml` dependencies:
 
 ```toml
 [dependencies]
-plotters-iced = "0.3"
-iced = { version = "0.4", features = ["canvas", "tokio"] }
+plotters-iced = "0.4"
+iced = { version = "0.5", features = ["canvas", "tokio"] }
 plotters="0.3"
 ```
 
@@ -48,7 +48,8 @@ Then, derive `Chart` trait and build your chart, and let `plotters-iced` takes c
 ```rust
 struct MyChart;
 impl Chart<Message> for MyChart {
-    fn build_chart<DB:DrawingBackend>(&self, builder: ChartBuilder<DB>) {
+    type State = ();
+    fn build_chart<DB:DrawingBackend>(&self, state: &Self::State, builder: ChartBuilder<DB>) {
         //build your chart here, please refer to plotters for more details
     }
 }
