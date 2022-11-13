@@ -56,29 +56,21 @@ pub extern crate plotters_backend;
 mod backend;
 mod chart;
 mod error;
-mod event;
-mod graphics;
 mod renderer;
-
-/// native widgets
-#[cfg(feature = "native")]
-pub mod native;
-
-/// pure widgets
-#[cfg(feature = "pure")]
-pub mod pure;
+/// data point sampling
+pub mod sample;
 mod utils;
+mod widget;
 
 #[doc(inline)]
 pub use chart::Chart;
 #[doc(inline)]
 pub use error::Error;
 
-#[deprecated]
-pub use event::MouseEventCallback;
-#[cfg(feature = "native")]
-pub use native::ChartWidget;
 #[doc(no_inline)]
 pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
 #[doc(no_inline)]
 pub use plotters_backend::DrawingBackend;
+
+/// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
+pub use widget::ChartWidget;

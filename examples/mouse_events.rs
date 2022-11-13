@@ -5,8 +5,12 @@
 // License: MIT
 
 use iced::{
-    canvas::{Cache, Cursor, Frame, Geometry},
-    executor, Alignment, Application, Column, Command, Container, Element, Length, Point, Size,
+    executor,
+    widget::{
+        canvas::{self, Cache, Cursor, Frame, Geometry},
+        Column, Container, Text,
+    },
+    Alignment, Application, Command, Element, Length, Point, Size, Theme,
 };
 use plotters::{
     coord::{types::RangedCoordf32, ReverseCoordTranslate},
@@ -23,6 +27,7 @@ impl Application for State {
     type Message = Message;
     type Executor = executor::Default;
     type Flags = ();
+    type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
@@ -62,12 +67,12 @@ impl Application for State {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<Self::Message> {
+    fn view(&self) -> Element<Self::Message> {
         let content = Column::new()
             .spacing(20)
             .width(Length::Fill)
             .height(Length::Fill)
-            .push(iced::Text::new("Click below!").size(20))
+            .push(Text::new("Click below!").size(20))
             .push(self.chart.view())
             .align_items(Alignment::Center)
             .padding(15);
@@ -94,7 +99,7 @@ struct ArtChart {
 }
 
 impl ArtChart {
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill);
@@ -136,11 +141,12 @@ impl ArtChart {
 }
 
 impl Chart<Message> for ArtChart {
+    type State = ();
     fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry {
         self.cache.draw(bounds, draw_fn)
     }
 
-    fn build_chart<DB: DrawingBackend>(&self, mut builder: ChartBuilder<DB>) {
+    fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut builder: ChartBuilder<DB>) {
         use plotters::style::colors;
 
         const POINT_COLOR: RGBColor = colors::RED;
@@ -225,14 +231,15 @@ impl Chart<Message> for ArtChart {
     }
 
     fn update(
-        &mut self,
-        event: iced::canvas::Event,
+        &self,
+        _state: &mut Self::State,
+        event: canvas::Event,
         bounds: iced::Rectangle,
-        cursor: iced::canvas::Cursor,
+        cursor: canvas::Cursor,
     ) -> (iced_native::event::Status, Option<Message>) {
         if let Cursor::Available(point) = cursor {
             match event {
-                iced::canvas::Event::Mouse(evt) if bounds.contains(point) => {
+                canvas::Event::Mouse(evt) if bounds.contains(point) => {
                     let p_origin = bounds.position();
                     let p = point - p_origin;
                     return (
@@ -253,5 +260,8 @@ enum Message {
 }
 
 fn main() -> iced::Result {
-    State::run(iced::Settings::default())
+    State::run(iced::Settings {
+        antialiasing: true,
+        ..Default::default()
+    })
 }

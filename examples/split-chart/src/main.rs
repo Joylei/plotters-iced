@@ -24,8 +24,9 @@ extern crate iced;
 extern crate plotters;
 
 use iced::{
-    executor, Alignment, Application, Column, Command, Container, Element, Length, Settings,
-    Subscription,
+    executor,
+    widget::{Column, Container, Text},
+    Alignment, Application, Command, Element, Length, Settings, Subscription, Theme,
 };
 use plotters::{coord::Shift, prelude::*};
 use plotters_backend::DrawingBackend;
@@ -58,6 +59,7 @@ impl Application for State {
     type Message = self::Message;
     type Executor = executor::Default;
     type Flags = ();
+    type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
@@ -76,17 +78,16 @@ impl Application for State {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let content = Column::new()
             .spacing(20)
             .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
-            .push(iced::Text::new("Iced test chart").size(TITLE_FONT_SIZE))
+            .push(Text::new("Iced test chart").size(TITLE_FONT_SIZE))
             .push(self.chart.view());
 
         Container::new(content)
-            //.style(style::Container)
             .width(Length::Fill)
             .height(Length::Fill)
             .padding(5)
@@ -109,7 +110,7 @@ impl MyChart {
         Self
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill);
@@ -119,10 +120,11 @@ impl MyChart {
 }
 
 impl Chart<Message> for MyChart {
+    type State = ();
     // leave it empty
-    fn build_chart<DB: DrawingBackend>(&self, _builder: ChartBuilder<DB>) {}
+    fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, _builder: ChartBuilder<DB>) {}
 
-    fn draw_chart<DB: DrawingBackend>(&self, root: DrawingArea<DB, Shift>) {
+    fn draw_chart<DB: DrawingBackend>(&self, _state: &Self::State, root: DrawingArea<DB, Shift>) {
         let children = root.split_evenly((2, 2));
         for (i, area) in children.iter().enumerate() {
             let builder = ChartBuilder::on(area);

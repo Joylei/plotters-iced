@@ -3,22 +3,30 @@
 // Iced backend for Plotters
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
+
 extern crate iced;
 extern crate plotters;
 extern crate rand;
+extern crate tokio;
 
 use chrono::{DateTime, Utc};
 use iced::{
-    canvas::{Cache, Frame, Geometry},
-    executor, Alignment, Application, Column, Command, Container, Element, Font, Length, Settings,
-    Size, Subscription,
+    executor,
+    widget::{
+        canvas::{Cache, Frame, Geometry},
+        Column, Container, Text,
+    },
+    Alignment, Application, Command, Element, Font, Length, Settings, Size, Subscription, Theme,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
-use plotters_iced::{Chart, ChartWidget};
+use plotters_iced::{
+    sample::lttb::{DataPoint, LttbSource},
+    Chart, ChartWidget,
+};
 use rand::Rng;
-use std::collections::VecDeque;
 use std::time::Duration;
+use std::{collections::VecDeque, time::Instant};
 
 const TITLE_FONT_SIZE: u16 = 22;
 
@@ -36,27 +44,41 @@ fn main() {
     .unwrap();
 }
 
+struct Wrapper<'a>(&'a DateTime<Utc>, &'a f32);
+
+impl DataPoint for Wrapper<'_> {
+    #[inline]
+    fn x(&self) -> f64 {
+        self.0.timestamp() as f64
+    }
+    #[inline]
+    fn y(&self) -> f64 {
+        *self.1 as f64
+    }
+}
+
 #[derive(Debug)]
 enum Message {
-    /// message that cause charts' data lazily updated
-    Tick,
+    DataLoaded(Vec<(DateTime<Utc>, f32)>),
+    Sampled(Vec<(DateTime<Utc>, f32)>),
 }
 
 struct State {
-    chart: ExampleChart,
+    chart: Option<ExampleChart>,
 }
 
 impl Application for State {
     type Message = self::Message;
     type Executor = executor::Default;
     type Flags = ();
+    type Theme = Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
-            Self {
-                chart: ExampleChart::new(generate_data().into_iter()),
-            },
-            Command::none(),
+            Self { chart: None },
+            Command::perform(tokio::task::spawn_blocking(generate_data), |data| {
+                Message::DataLoaded(data.unwrap())
+            }),
         )
     }
 
@@ -64,25 +86,45 @@ impl Application for State {
         "Large Data Example".to_owned()
     }
 
-    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
-        Command::none()
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        match message {
+            Message::DataLoaded(data) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    let now = Instant::now();
+                    let sampled: Vec<_> = (&data[..])
+                        .cast(|v| Wrapper(&v.0, &v.1))
+                        .lttb(1000)
+                        .map(|w| (*w.0, *w.1))
+                        .collect();
+                    dbg!(now.elapsed().as_millis());
+                    sampled
+                }),
+                |data| Message::Sampled(data.unwrap()),
+            ),
+            Message::Sampled(sampled) => {
+                self.chart = Some(ExampleChart::new(sampled.into_iter()));
+                Command::none()
+            }
+        }
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let content = Column::new()
             .spacing(20)
             .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(
-                iced::Text::new("Iced test chart")
+                Text::new("Iced test chart")
                     .size(TITLE_FONT_SIZE)
                     .font(FONT_BOLD),
             )
-            .push(self.chart.view());
+            .push(match self.chart {
+                Some(ref chart) => chart.view(),
+                None => Text::new("Loading...").into(),
+            });
 
         Container::new(content)
-            //.style(style::Container)
             .width(Length::Fill)
             .height(Length::Fill)
             .padding(5)
@@ -110,7 +152,7 @@ impl ExampleChart {
         }
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill);
@@ -120,6 +162,7 @@ impl ExampleChart {
 }
 
 impl Chart<Message> for ExampleChart {
+    type State = ();
     // fn update(
     //     &mut self,
     //     event: Event,
@@ -135,7 +178,7 @@ impl Chart<Message> for ExampleChart {
         self.cache.draw(bounds, draw_fn)
     }
 
-    fn build_chart<DB: DrawingBackend>(&self, mut chart: ChartBuilder<DB>) {
+    fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart: ChartBuilder<DB>) {
         use plotters::{prelude::*, style::Color};
 
         const PLOT_LINE_COLOR: RGBColor = RGBColor(0, 175, 255);
@@ -156,8 +199,8 @@ impl Chart<Message> for ExampleChart {
             .0
             .checked_sub_signed(chrono::Duration::from_std(Duration::from_secs(10)).unwrap())
             .unwrap();
-        dbg!(&newest_time);
-        dbg!(&oldest_time);
+        //dbg!(&newest_time);
+        //dbg!(&oldest_time);
         let mut chart = chart
             .x_label_area_size(0)
             .y_label_area_size(28)
@@ -167,14 +210,14 @@ impl Chart<Message> for ExampleChart {
 
         chart
             .configure_mesh()
-            .bold_line_style(&plotters::style::colors::WHITE.mix(0.1))
-            .light_line_style(&plotters::style::colors::WHITE.mix(0.05))
-            .axis_style(ShapeStyle::from(&plotters::style::colors::WHITE.mix(0.45)).stroke_width(1))
+            .bold_line_style(&plotters::style::colors::BLUE.mix(0.1))
+            .light_line_style(&plotters::style::colors::BLUE.mix(0.05))
+            .axis_style(ShapeStyle::from(&plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
                 ("sans-serif", 15)
                     .into_font()
-                    .color(&plotters::style::colors::WHITE.mix(0.65))
+                    .color(&plotters::style::colors::BLUE.mix(0.65))
                     .transform(FontTransform::Rotate90),
             )
             .y_label_formatter(&|y| format!("{}", y))
@@ -218,21 +261,6 @@ fn generate_data() -> Vec<(DateTime<Utc>, f32)> {
         data.push((time, value));
     }
     data.sort_by_cached_key(|x| x.0);
-    dbg!(&data[..100]);
+    //dbg!(&data[..100]);
     data
-}
-
-mod style {
-    use iced::Color;
-
-    pub struct ChartContainer;
-    impl iced::container::StyleSheet for ChartContainer {
-        fn style(&self) -> iced::container::Style {
-            iced::container::Style {
-                background: Some(Color::BLACK.into()),
-                text_color: Some(Color::WHITE),
-                ..Default::default()
-            }
-        }
-    }
 }

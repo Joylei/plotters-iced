@@ -5,13 +5,13 @@
 // License: MIT
 
 use super::Chart;
-use super::Renderer;
+use crate::renderer::Renderer;
 use crate::utils::cursor_from_window_position;
 use core::marker::PhantomData;
-use iced_graphics::{canvas::Event, renderer::Style};
+use iced_graphics::{renderer::Style, widget::canvas::Event};
+use iced_native::widget::tree::{self, Tree};
 use iced_native::{event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size};
-use iced_pure::widget::tree::{self, Tree};
-use iced_pure::{Element, Widget};
+use iced_native::{Element, Widget};
 use plotters_backend::{FontFamily, FontStyle};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
@@ -76,7 +76,7 @@ where
         self.height
     }
 
-    fn tag(&self) -> iced_pure::widget::tree::Tag {
+    fn tag(&self) -> tree::Tag {
         struct Tag<T>(T);
         tree::Tag::of::<Tag<C::State>>()
     }
@@ -103,21 +103,14 @@ where
         &self,
         tree: &Tree,
         renderer: &mut Renderer,
-        style: &Style,
+        _theme: &<Renderer as iced_native::Renderer>::Theme,
+        _style: &Style,
         layout: iced_native::Layout<'_>,
-        cursor_position: Point,
-        viewport: &Rectangle,
+        _cursor_position: Point,
+        _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<C::State>();
-        renderer.draw_chart(
-            state,
-            &self.chart,
-            &self.font_resolver,
-            style,
-            layout,
-            cursor_position,
-            viewport,
-        )
+        renderer.draw_chart(state, &self.chart, &self.font_resolver, layout);
     }
 
     #[inline]
