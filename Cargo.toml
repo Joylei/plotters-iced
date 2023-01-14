@@ -1,6 +1,6 @@
 [package]
 name = "plotters-iced"
-version = "0.5.0"
+version = "0.6.0"
 description = "Iced backend for Plotters"
 readme = "README.md"
 license = "MIT"
@@ -19,8 +19,8 @@ members = [".", "examples/split-chart"]
 [dependencies]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
-iced_native = "0.7"
-iced_graphics = { version = "0.5", features = ["canvas"] }
+iced_native = "0.8"
+iced_graphics = { version = "0.6", features = ["canvas"] }
 
 [dev-dependencies]
 plotters = { version = "0.3", default_features = false, features = [
@@ -29,10 +29,10 @@ plotters = { version = "0.3", default_features = false, features = [
     "line_series",
     "point_series",
 ] }
-iced = { version = "0.6", features = ["canvas", "tokio"] }
+iced = { version = "0.7", features = ["canvas", "tokio"] }
 chrono = { version = "0.4", default-features = false }
 rand = "0.8"
 tokio = { version = "1", features = ["rt"], default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-sysinfo = { version = "0.26", default_features = false }
+sysinfo = { version = "0.27", default_features = false }
