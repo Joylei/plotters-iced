@@ -120,7 +120,7 @@ struct SystemChart {
     last_sample_time: Instant,
     items_per_row: usize,
     processors: Vec<CpuUsageChart>,
-    chart_height: u16,
+    chart_height: f32,
 }
 
 impl Default for SystemChart {
@@ -132,7 +132,7 @@ impl Default for SystemChart {
             last_sample_time: Instant::now(),
             items_per_row: 3,
             processors: Default::default(),
-            chart_height: 300,
+            chart_height: 300.0,
         }
     }
 }
@@ -190,7 +190,7 @@ impl SystemChart {
                     .spacing(15)
                     .padding(20)
                     .width(Length::Fill)
-                    .height(Length::Units(chart_height))
+                    .height(Length::Fixed(chart_height))
                     .align_items(Alignment::Center);
                 for item in chunk {
                     row = row.push(item.view(idx));
