@@ -19,7 +19,7 @@ members = [".", "examples/split-chart"]
 [dependencies]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
-iced_native = "0.8"
+iced_native = "0.9"
 iced_graphics = { version = "0.7", features = ["canvas"] }
 
 [dev-dependencies]
