@@ -181,7 +181,7 @@ impl SystemChart {
                 .vertical_alignment(Vertical::Center)
                 .into()
         } else {
-            let mut col = Column::new().width(Length::Fill).height(Length::Fill);
+            let mut col = Column::new().width(Length::Fill).height(Length::Shrink);
 
             let chart_height = self.chart_height;
             let mut idx = 0;
