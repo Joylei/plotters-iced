@@ -179,7 +179,7 @@ where
                 let avg_range_length = (avg_range_end - avg_range_start) as f64;
 
                 for i in 0..(avg_range_end - avg_range_start) {
-                    let idx = (avg_range_start + i) as usize;
+                    let idx = avg_range_start + i;
                     let item = self.source.item_at(idx);
                     avg_x += item.x();
                     avg_y += item.y();
@@ -199,7 +199,7 @@ where
                 let mut max_area = -1f64;
                 let mut next_a = range_offs;
                 for i in 0..(range_to - range_offs) {
-                    let idx = (range_offs + i) as usize;
+                    let idx = range_offs + i;
 
                     // Calculate triangle area over three buckets.
                     let item = self.source.item_at(idx);

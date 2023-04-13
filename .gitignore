@@ -2,3 +2,4 @@ target/*
 Cargo.lock
 .cargo/*
 examples/split-chart/dist/*
+.idea
