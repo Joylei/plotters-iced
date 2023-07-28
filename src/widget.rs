@@ -6,12 +6,13 @@
 
 use super::Chart;
 use crate::renderer::Renderer;
-use crate::utils::cursor_from_window_position;
 use core::marker::PhantomData;
-use iced_graphics::{renderer::Style, widget::canvas::Event};
-use iced_native::widget::tree::{self, Tree};
-use iced_native::{event, Clipboard, Font, Layout, Length, Point, Rectangle, Shell, Size};
-use iced_native::{Element, Widget};
+use iced_widget::canvas::Event;
+use iced_widget::core::mouse::Cursor;
+use iced_widget::core::widget::{tree, Tree};
+use iced_widget::core::{
+    event, renderer::Style, Element, Font, Layout, Length, Rectangle, Shell, Size, Widget,
+};
 use plotters_backend::{FontFamily, FontStyle};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
@@ -89,13 +90,13 @@ where
     fn layout(
         &self,
         _renderer: &Renderer,
-        limits: &iced_native::layout::Limits,
-    ) -> iced_native::layout::Node {
+        limits: &iced_widget::core::layout::Limits,
+    ) -> iced_widget::core::layout::Node {
         let size = limits
             .width(self.width)
             .height(self.height)
             .resolve(Size::ZERO);
-        iced_native::layout::Node::new(size)
+        iced_widget::core::layout::Node::new(size)
     }
 
     #[inline]
@@ -103,10 +104,10 @@ where
         &self,
         tree: &Tree,
         renderer: &mut Renderer,
-        _theme: &<Renderer as iced_native::Renderer>::Theme,
+        _theme: &<Renderer as iced_widget::core::Renderer>::Theme,
         _style: &Style,
-        layout: iced_native::Layout<'_>,
-        _cursor_position: Point,
+        layout: Layout<'_>,
+        _cursor_position: Cursor,
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<C::State>();
@@ -117,20 +118,22 @@ where
     fn on_event(
         &mut self,
         tree: &mut Tree,
-        event: iced_native::Event,
+        event: iced_widget::core::Event,
         layout: Layout<'_>,
-        cursor_position: Point,
+        cursor: Cursor,
         _renderer: &Renderer,
-        _clipboard: &mut dyn Clipboard,
+        _clipboard: &mut dyn iced_widget::core::Clipboard,
         shell: &mut Shell<'_, Message>,
+        _rectangle: &Rectangle,
     ) -> event::Status {
         let bounds = layout.bounds();
         let canvas_event = match event {
-            iced_native::Event::Mouse(mouse_event) => Some(Event::Mouse(mouse_event)),
-            iced_native::Event::Keyboard(keyboard_event) => Some(Event::Keyboard(keyboard_event)),
+            iced_widget::core::Event::Mouse(mouse_event) => Some(Event::Mouse(mouse_event)),
+            iced_widget::core::Event::Keyboard(keyboard_event) => {
+                Some(Event::Keyboard(keyboard_event))
+            }
             _ => None,
         };
-        let cursor = cursor_from_window_position(cursor_position);
         if let Some(canvas_event) = canvas_event {
             let state = tree.state.downcast_mut::<C::State>();
 
@@ -148,13 +151,12 @@ where
         &self,
         tree: &Tree,
         layout: Layout<'_>,
-        cursor_position: Point,
+        cursor: Cursor,
         _viewport: &Rectangle,
         _renderer: &Renderer,
-    ) -> iced_native::mouse::Interaction {
+    ) -> iced_widget::core::mouse::Interaction {
         let state = tree.state.downcast_ref::<C::State>();
         let bounds = layout.bounds();
-        let cursor = cursor_from_window_position(cursor_position);
         self.chart.mouse_interaction(state, bounds, cursor)
     }
 }

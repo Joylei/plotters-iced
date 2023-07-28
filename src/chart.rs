@@ -4,8 +4,13 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use iced_graphics::widget::canvas::{Cursor, Event, Frame, Geometry};
-use iced_native::{event::Status, Rectangle, Size};
+use iced_widget::core::event::Status;
+use iced_widget::core::mouse::Interaction;
+use iced_widget::core::Rectangle;
+use iced_widget::{
+    canvas::{Event, Frame, Geometry},
+    core::{mouse::Cursor, Size},
+};
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
 use plotters_backend::DrawingBackend;
 
@@ -42,7 +47,7 @@ where
         state: &Self::State,
         bounds: Rectangle,
         cursor: Cursor,
-    ) -> iced_native::mouse::Interaction {
+    ) -> Interaction {
         C::mouse_interaction(self, state, bounds, cursor)
     }
 }
@@ -150,7 +155,7 @@ pub trait Chart<Message> {
         state: &Self::State,
         bounds: Rectangle,
         cursor: Cursor,
-    ) -> iced_native::mouse::Interaction {
-        iced_native::mouse::Interaction::Idle
+    ) -> Interaction {
+        Interaction::Idle
     }
 }

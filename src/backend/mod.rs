@@ -6,13 +6,12 @@
 
 use crate::error::Error;
 use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
-use iced_graphics::{
+use iced_graphics::{backend, Backend};
+use iced_widget::core::{
     alignment::{Horizontal, Vertical},
-    backend,
-    widget::canvas,
-    Backend, Size,
+    Font,
 };
-use iced_native::Font;
+use iced_widget::{canvas, core::Size};
 use plotters_backend::{
     text_anchor,
     BackendColor,
@@ -226,9 +225,11 @@ where
             position: pos,
             color: cvt_color(&style.color()),
             size: style.size() as f32,
+            line_height: Default::default(),
             font,
             horizontal_alignment,
             vertical_alignment,
+            shaping: Default::default(),
         };
         //TODO: fix rotation until text rotation is supported by Iced
         // let rotate = match style.transform() {
@@ -262,10 +263,15 @@ where
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
         let font = (self.font_resolver)(style.family(), style.style());
         let bounds = self.frame.size();
-        let size = self
-            .backend
-            .measure(text, style.size() as f32, font, bounds);
-        Ok((size.0 as u32, size.1 as u32))
+        let size = self.backend.measure(
+            text,
+            style.size() as f32,
+            Default::default(),
+            font,
+            bounds,
+            Default::default(),
+        );
+        Ok((size.width as u32, size.height as u32))
     }
 
     #[inline]

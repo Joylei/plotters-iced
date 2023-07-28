@@ -4,9 +4,9 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use iced_graphics::widget::canvas;
-use iced_graphics::widget::canvas::Cursor;
-use iced_native::{Color, Point};
+use iced_widget::canvas;
+use iced_widget::core::mouse::Cursor;
+use iced_widget::core::{Color, Point};
 use plotters_backend::{BackendColor, BackendCoord, BackendStyle};
 
 pub(crate) trait AndExt {
