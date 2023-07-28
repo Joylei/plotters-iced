@@ -6,12 +6,12 @@
 
 use crate::backend::IcedChartBackend;
 use crate::Chart;
-use iced_graphics::{self, backend, Backend, Primitive, Vector};
-use iced_native::{Font, Layout};
+use iced_graphics::{self, backend, Backend, Primitive};
+use iced_widget::core::{Font, Layout, Vector};
 use plotters::prelude::DrawingArea;
 use plotters_backend::{FontFamily, FontStyle};
 
-pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
+pub trait Renderer: iced_widget::core::Renderer + iced_widget::core::text::Renderer {
     fn draw_chart<Message, C, F>(
         &mut self,
         state: &C::State,
@@ -23,7 +23,14 @@ pub trait Renderer: iced_native::Renderer + iced_native::text::Renderer {
         F: Fn(FontFamily, FontStyle) -> Font;
 }
 
-impl<B: Backend + backend::Text, Theme> Renderer for iced_graphics::Renderer<B, Theme> {
+impl<
+        B: Backend
+            + backend::Text
+            + iced_widget::graphics::Backend
+            + iced_widget::graphics::backend::Text,
+        Theme,
+    > Renderer for iced_widget::graphics::Renderer<B, Theme>
+{
     fn draw_chart<Message, C, F>(
         &mut self,
         state: &C::State,
