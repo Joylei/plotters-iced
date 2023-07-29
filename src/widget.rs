@@ -7,13 +7,16 @@
 use super::Chart;
 use crate::renderer::Renderer;
 use core::marker::PhantomData;
-use iced_widget::canvas::Event;
-use iced_widget::core::mouse::Cursor;
-use iced_widget::core::widget::{tree, Tree};
-use iced_widget::core::{
-    event, renderer::Style, Element, Font, Layout, Length, Rectangle, Shell, Size, Widget,
+use iced_widget::{
+    canvas::Event,
+    core::{
+        event,
+        mouse::Cursor,
+        renderer::Style,
+        widget::{tree, Tree},
+        Element, Layout, Length, Rectangle, Shell, Size, Widget,
+    },
 };
-use plotters_backend::{FontFamily, FontStyle};
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
 pub struct ChartWidget<'a, Message, Renderer, C>
@@ -23,7 +26,6 @@ where
     chart: C,
     width: Length,
     height: Length,
-    font_resolver: Box<dyn Fn(FontFamily, FontStyle) -> Font>,
     _marker: PhantomData<&'a (Renderer, Message)>,
 }
 
@@ -37,7 +39,6 @@ where
             chart,
             width: Length::Fill,
             height: Length::Fill,
-            font_resolver: Box::new(|_, _| Default::default()),
             _marker: Default::default(),
         }
     }
@@ -51,15 +52,6 @@ where
     /// set height
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
-        self
-    }
-
-    /// set font resolver
-    pub fn resolve_font(
-        mut self,
-        resolver: impl Fn(FontFamily, FontStyle) -> Font + 'static,
-    ) -> Self {
-        self.font_resolver = Box::new(resolver);
         self
     }
 }
@@ -111,7 +103,7 @@ where
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<C::State>();
-        renderer.draw_chart(state, &self.chart, &self.font_resolver, layout);
+        renderer.draw_chart(state, &self.chart, layout);
     }
 
     #[inline]
