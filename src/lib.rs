@@ -19,8 +19,8 @@
 
    ```toml
    [dependencies]
-   plotters-iced = "0.6"
-   iced = { version = "0.7", features = ["canvas", "tokio"] }
+   plotters-iced = "0.9"
+   iced = { version = "0.10", features = ["canvas", "tokio"] }
    plotters="0.3"
    ```
 
