@@ -6,11 +6,14 @@
 
 use crate::error::Error;
 use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
-use iced_widget::core::{
-    alignment::{Horizontal, Vertical},
-    text, Font,
+use iced_widget::{
+    canvas,
+    core::{
+        alignment::{Horizontal, Vertical},
+        font, text, Font, Size,
+    },
 };
-use iced_widget::{canvas, core::Size};
+use once_cell::unsync::Lazy;
 use plotters_backend::{
     text_anchor,
     BackendColor,
@@ -23,32 +26,26 @@ use plotters_backend::{
     FontStyle,
     //FontTransform,
 };
+use std::collections::HashSet;
 
 /// The Iced drawing backend
-pub(crate) struct IcedChartBackend<'a, B, F> {
+pub(crate) struct IcedChartBackend<'a, B> {
     frame: &'a mut canvas::Frame,
     backend: &'a B,
-    font_resolver: &'a F,
 }
 
-impl<'a, B, F> IcedChartBackend<'a, B, F>
+impl<'a, B> IcedChartBackend<'a, B>
 where
     B: text::Renderer<Font = Font>,
-    F: Fn(FontFamily, FontStyle) -> Font,
 {
-    pub fn new(frame: &'a mut canvas::Frame, backend: &'a B, font_resolver: &'a F) -> Self {
-        Self {
-            frame,
-            backend,
-            font_resolver,
-        }
+    pub fn new(frame: &'a mut canvas::Frame, backend: &'a B) -> Self {
+        Self { frame, backend }
     }
 }
 
-impl<'a, B, F> DrawingBackend for IcedChartBackend<'a, B, F>
+impl<'a, B> DrawingBackend for IcedChartBackend<'a, B>
 where
     B: text::Renderer<Font = Font>,
-    F: Fn(FontFamily, FontStyle) -> Font,
 {
     type ErrorType = Error;
 
@@ -211,7 +208,7 @@ where
             text_anchor::VPos::Center => Vertical::Center,
             text_anchor::VPos::Bottom => Vertical::Bottom,
         };
-        let font = (self.font_resolver)(style.family(), style.style());
+        let font = style_to_font(style);
         let pos = pos.cvt_point();
 
         //let (w, h) = self.estimate_text_size(text, style)?;
@@ -256,7 +253,7 @@ where
         text: &str,
         style: &S,
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
-        let font = (self.font_resolver)(style.family(), style.style());
+        let font = style_to_font(style);
         let bounds = self.frame.size();
         let size = self.backend.measure(
             text,
@@ -280,5 +277,32 @@ where
         // Notice: currently Iced has limitations, because widgets are not rendered in the order of creation, and different primitives go to different render pipelines.
 
         Ok(())
+    }
+}
+
+fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
+    // iced font family requires static str
+    static mut FONTS: Lazy<HashSet<String>> = Lazy::new(HashSet::new);
+
+    Font {
+        family: match style.family() {
+            FontFamily::Serif => font::Family::Serif,
+            FontFamily::SansSerif => font::Family::SansSerif,
+            FontFamily::Monospace => font::Family::Monospace,
+            FontFamily::Name(s) => {
+                let s = unsafe {
+                    if !FONTS.contains(s) {
+                        FONTS.insert(String::from(s));
+                    }
+                    FONTS.get(s).unwrap().as_str()
+                };
+                font::Family::Name(s)
+            }
+        },
+        weight: match style.style() {
+            FontStyle::Bold => font::Weight::Bold,
+            _ => font::Weight::Normal,
+        },
+        ..Font::DEFAULT
     }
 }

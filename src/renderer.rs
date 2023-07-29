@@ -8,26 +8,19 @@ use crate::backend::IcedChartBackend;
 use crate::Chart;
 use iced_widget::{
     canvas::{Cache, Frame},
-    core::{Font, Layout, Size, Vector},
+    core::{Layout, Size, Vector},
     renderer::Geometry,
 };
 use plotters::prelude::DrawingArea;
-use plotters_backend::{FontFamily, FontStyle};
 
 /// Graphics Renderer
 pub trait Renderer:
     iced_widget::core::Renderer + iced_widget::core::text::Renderer + iced_graphics::geometry::Renderer
 {
     /// draw a [Chart]
-    fn draw_chart<Message, C, F>(
-        &mut self,
-        state: &C::State,
-        chart: &C,
-        font_resolver: &F,
-        layout: Layout<'_>,
-    ) where
-        C: Chart<Message>,
-        F: Fn(FontFamily, FontStyle) -> Font;
+    fn draw_chart<Message, C>(&mut self, state: &C::State, chart: &C, layout: Layout<'_>)
+    where
+        C: Chart<Message>;
 }
 
 impl<Theme> crate::chart::Renderer for iced_widget::renderer::Renderer<Theme> {
@@ -43,22 +36,16 @@ impl<Theme> crate::chart::Renderer for iced_widget::renderer::Renderer<Theme> {
 }
 
 impl<Theme> Renderer for iced_widget::renderer::Renderer<Theme> {
-    fn draw_chart<Message, C, F>(
-        &mut self,
-        state: &C::State,
-        chart: &C,
-        font_resolver: &F,
-        layout: Layout<'_>,
-    ) where
+    fn draw_chart<Message, C>(&mut self, state: &C::State, chart: &C, layout: Layout<'_>)
+    where
         C: Chart<Message>,
-        F: Fn(FontFamily, FontStyle) -> Font,
     {
         let bounds = layout.bounds();
         if bounds.width < 1.0 || bounds.height < 1.0 {
             return;
         }
         let geometry = chart.draw(self, bounds.size(), |frame| {
-            let backend = IcedChartBackend::new(frame, self, font_resolver);
+            let backend = IcedChartBackend::new(frame, self);
             let root: DrawingArea<_, _> = backend.into();
             chart.draw_chart(state, root);
         });
