@@ -4,6 +4,7 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
+use iced_widget::canvas::Cache;
 use iced_widget::core::event::Status;
 use iced_widget::core::mouse::Interaction;
 use iced_widget::core::Rectangle;
@@ -13,6 +14,15 @@ use iced_widget::{
 };
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
 use plotters_backend::DrawingBackend;
+
+/// graphics renderer
+pub trait Renderer {
+    /// draw frame
+    fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry;
+
+    /// draw frame with cache
+    fn draw_cache<F: Fn(&mut Frame)>(&self, cache: &Cache, bounds: Size, draw_fn: F) -> Geometry;
+}
 
 impl<Message, C> Chart<Message> for &C
 where
@@ -28,8 +38,8 @@ where
         C::draw_chart(self, state, root)
     }
     #[inline]
-    fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
-        C::draw(self, size, f)
+    fn draw<R: Renderer, F: Fn(&mut Frame)>(&self, renderer: &R, size: Size, f: F) -> Geometry {
+        C::draw(self, renderer, size, f)
     }
     #[inline]
     fn update(
@@ -120,17 +130,15 @@ pub trait Chart<Message> {
     /// impl Chart<Message> for CpuUsageChart {
     ///
     ///       #[inline]
-    ///       fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry {
-    ///            self.cache.draw(bounds, draw_fn)
+    ///       fn draw<R: Renderer, F: Fn(&mut Frame)>(&self, renderer: &R, bounds: Size, draw_fn: F) -> Geometry {
+    ///            R::draw(renderer, &self.cache, size, draw_fn)
     ///       }
     ///      //...
     /// }
     /// ```
     #[inline]
-    fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
-        let mut frame = Frame::new(size);
-        f(&mut frame);
-        frame.into_geometry()
+    fn draw<R: Renderer, F: Fn(&mut Frame)>(&self, renderer: &R, size: Size, f: F) -> Geometry {
+        R::draw(renderer, size, f)
     }
 
     /// react on event
