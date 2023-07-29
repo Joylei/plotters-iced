@@ -11,7 +11,7 @@ extern crate tokio;
 
 use chrono::{DateTime, Utc};
 use iced::{
-    executor,
+    executor, font,
     widget::{
         canvas::{Cache, Frame, Geometry},
         Column, Container, Text,
@@ -22,7 +22,7 @@ use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
 use plotters_iced::{
     sample::lttb::{DataPoint, LttbSource},
-    Chart, ChartWidget,
+    Chart, ChartWidget, Renderer,
 };
 use rand::Rng;
 use std::time::Duration;
@@ -30,15 +30,16 @@ use std::{collections::VecDeque, time::Instant};
 
 const TITLE_FONT_SIZE: u16 = 22;
 
-const FONT_BOLD: Font = Font::External {
-    name: "sans-serif-bold",
-    bytes: include_bytes!("./fonts/notosans-bold.ttf"),
+const FONT_BOLD: Font = Font {
+    family: font::Family::Name("Noto Sans"),
+    weight: font::Weight::Bold,
+    ..Font::DEFAULT
 };
 
 fn main() {
     State::run(Settings {
         antialiasing: true,
-        default_font: Some(include_bytes!("./fonts/notosans-regular.ttf")),
+        default_font: Font::with_name("Noto Sans"),
         ..Settings::default()
     })
     .unwrap();
@@ -59,6 +60,7 @@ impl DataPoint for Wrapper<'_> {
 
 #[derive(Debug)]
 enum Message {
+    FontLoaded(Result<(), font::Error>),
     DataLoaded(Vec<(DateTime<Utc>, f32)>),
     Sampled(Vec<(DateTime<Utc>, f32)>),
 }
@@ -76,9 +78,15 @@ impl Application for State {
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             Self { chart: None },
-            Command::perform(tokio::task::spawn_blocking(generate_data), |data| {
-                Message::DataLoaded(data.unwrap())
-            }),
+            Command::batch([
+                font::load(include_bytes!("./fonts/notosans-regular.ttf").as_slice())
+                    .map(Message::FontLoaded),
+                font::load(include_bytes!("./fonts/notosans-bold.ttf").as_slice())
+                    .map(Message::FontLoaded),
+                Command::perform(tokio::task::spawn_blocking(generate_data), |data| {
+                    Message::DataLoaded(data.unwrap())
+                }),
+            ]),
         )
     }
 
@@ -105,6 +113,7 @@ impl Application for State {
                 self.chart = Some(ExampleChart::new(sampled.into_iter()));
                 Command::none()
             }
+            _ => Command::none(),
         }
     }
 
@@ -174,8 +183,13 @@ impl Chart<Message> for ExampleChart {
     // }
 
     #[inline]
-    fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry {
-        self.cache.draw(bounds, draw_fn)
+    fn draw<R: Renderer, F: Fn(&mut Frame)>(
+        &self,
+        renderer: &R,
+        bounds: Size,
+        draw_fn: F,
+    ) -> Geometry {
+        renderer.draw_cache(&self.cache, bounds, draw_fn)
     }
 
     fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart: ChartBuilder<DB>) {
@@ -215,7 +229,7 @@ impl Chart<Message> for ExampleChart {
             .axis_style(ShapeStyle::from(plotters::style::colors::BLUE.mix(0.45)).stroke_width(1))
             .y_labels(10)
             .y_label_style(
-                ("sans-serif", 15)
+                ("Noto Sans", 15)
                     .into_font()
                     .color(&plotters::style::colors::BLUE.mix(0.65))
                     .transform(FontTransform::Rotate90),

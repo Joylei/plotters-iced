@@ -5,9 +5,10 @@
 // License: MIT
 
 use iced::{
-    executor,
+    event, executor,
+    mouse::Cursor,
     widget::{
-        canvas::{self, Cache, Cursor, Frame, Geometry},
+        canvas::{self, Cache, Frame, Geometry},
         Column, Container, Text,
     },
     Alignment, Application, Command, Element, Length, Point, Size, Theme,
@@ -16,7 +17,7 @@ use plotters::{
     coord::{types::RangedCoordf32, ReverseCoordTranslate},
     prelude::*,
 };
-use plotters_iced::{Chart, ChartWidget};
+use plotters_iced::{Chart, ChartWidget, Renderer};
 use std::cell::RefCell;
 
 struct State {
@@ -138,8 +139,13 @@ impl ArtChart {
 
 impl Chart<Message> for ArtChart {
     type State = ();
-    fn draw<F: Fn(&mut Frame)>(&self, bounds: Size, draw_fn: F) -> Geometry {
-        self.cache.draw(bounds, draw_fn)
+    fn draw<R: Renderer, F: Fn(&mut Frame)>(
+        &self,
+        renderer: &R,
+        bounds: Size,
+        draw_fn: F,
+    ) -> Geometry {
+        renderer.draw_cache(&self.cache, bounds, draw_fn)
     }
 
     fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut builder: ChartBuilder<DB>) {
@@ -229,22 +235,22 @@ impl Chart<Message> for ArtChart {
         _state: &mut Self::State,
         event: canvas::Event,
         bounds: iced::Rectangle,
-        cursor: canvas::Cursor,
-    ) -> (iced_native::event::Status, Option<Message>) {
+        cursor: Cursor,
+    ) -> (event::Status, Option<Message>) {
         if let Cursor::Available(point) = cursor {
             match event {
                 canvas::Event::Mouse(evt) if bounds.contains(point) => {
                     let p_origin = bounds.position();
                     let p = point - p_origin;
                     return (
-                        iced_native::event::Status::Captured,
+                        event::Status::Captured,
                         Some(Message::MouseEvent(evt, Point::new(p.x, p.y))),
                     );
                 }
                 _ => {}
             }
         }
-        (iced_native::event::Status::Ignored, None)
+        (event::Status::Ignored, None)
     }
 }
 
