@@ -21,8 +21,10 @@ use iced::{
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
 use plotters_iced::{Chart, ChartWidget, Renderer};
-use std::collections::VecDeque;
-use std::time::{Duration, Instant};
+use std::{
+    collections::VecDeque,
+    time::{Duration, Instant},
+};
 use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
 
 const PLOT_SECONDS: usize = 60; //1 min
@@ -250,14 +252,7 @@ impl CpuUsageChart {
                 .height(Length::Fill)
                 .spacing(5)
                 .push(Text::new(format!("Processor {}", idx)))
-                .push(
-                    ChartWidget::new(self).height(Length::Fill), // .resolve_font(
-                                                                 //     |_, style| match style {
-                                                                 //         plotters_backend::FontStyle::Bold => FONT_BOLD,
-                                                                 //         _ => FONT_REGULAR,
-                                                                 //     },
-                                                                 // ),
-                ),
+                .push(ChartWidget::new(self).height(Length::Fill)),
         )
         .width(Length::Fill)
         .height(Length::Fill)

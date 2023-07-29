@@ -26,7 +26,7 @@ extern crate plotters;
 use iced::{
     executor,
     widget::{Column, Container, Text},
-    Alignment, Application, Command, Element, Length, Settings, Subscription, Theme,
+    window, Alignment, Application, Command, Element, Length, Settings, Subscription, Theme,
 };
 use plotters::{coord::Shift, prelude::*};
 use plotters_backend::DrawingBackend;
@@ -97,8 +97,7 @@ impl Application for State {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        use std::time::Duration;
-        iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
+        window::frames().map(|_| Message::Tick)
     }
 }
 
