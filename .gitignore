@@ -4,3 +4,4 @@ Cargo.lock
 examples/split-chart/dist/*
 .idea
 .DS_store
+.history

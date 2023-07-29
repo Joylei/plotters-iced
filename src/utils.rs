@@ -5,7 +5,6 @@
 // License: MIT
 
 use iced_widget::canvas;
-use iced_widget::core::mouse::Cursor;
 use iced_widget::core::{Color, Point};
 use plotters_backend::{BackendColor, BackendCoord, BackendStyle};
 
@@ -22,15 +21,6 @@ impl<T> AndExt for T {
         Self: Sized,
     {
         f(self)
-    }
-}
-
-/// same as Cursor::from_window_position
-pub(crate) fn cursor_from_window_position(cursor_position: Point) -> Cursor {
-    if cursor_position.x <= 0_f32 || cursor_position.y <= 0_f32 {
-        Cursor::Unavailable
-    } else {
-        Cursor::Available(cursor_position)
     }
 }
 

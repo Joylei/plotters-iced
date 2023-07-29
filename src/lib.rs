@@ -66,6 +66,9 @@ mod widget;
 #[doc(inline)]
 pub use chart::Chart;
 #[doc(inline)]
+pub use chart::Renderer;
+
+#[doc(inline)]
 pub use error::Error;
 
 #[doc(no_inline)]

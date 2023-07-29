@@ -6,10 +6,9 @@
 
 use crate::error::Error;
 use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
-use iced_graphics::{backend, Backend};
 use iced_widget::core::{
     alignment::{Horizontal, Vertical},
-    Font,
+    text, Font,
 };
 use iced_widget::{canvas, core::Size};
 use plotters_backend::{
@@ -26,11 +25,7 @@ use plotters_backend::{
 };
 
 /// The Iced drawing backend
-pub(crate) struct IcedChartBackend<'a, B, F>
-where
-    B: Backend + backend::Text,
-    F: Fn(FontFamily, FontStyle) -> Font,
-{
+pub(crate) struct IcedChartBackend<'a, B, F> {
     frame: &'a mut canvas::Frame,
     backend: &'a B,
     font_resolver: &'a F,
@@ -38,7 +33,7 @@ where
 
 impl<'a, B, F> IcedChartBackend<'a, B, F>
 where
-    B: Backend + backend::Text,
+    B: text::Renderer<Font = Font>,
     F: Fn(FontFamily, FontStyle) -> Font,
 {
     pub fn new(frame: &'a mut canvas::Frame, backend: &'a B, font_resolver: &'a F) -> Self {
@@ -52,7 +47,7 @@ where
 
 impl<'a, B, F> DrawingBackend for IcedChartBackend<'a, B, F>
 where
-    B: Backend + backend::Text,
+    B: text::Renderer<Font = Font>,
     F: Fn(FontFamily, FontStyle) -> Font,
 {
     type ErrorType = Error;
