@@ -4,14 +4,15 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use crate::backend::IcedChartBackend;
-use crate::Chart;
 use iced_widget::{
     canvas::{Cache, Frame},
     core::{Layout, Size, Vector},
     renderer::Geometry,
 };
 use plotters::prelude::DrawingArea;
+
+use crate::backend::IcedChartBackend;
+use crate::Chart;
 
 /// Graphics Renderer
 pub trait Renderer:
@@ -52,6 +53,6 @@ impl<Theme> Renderer for iced_widget::renderer::Renderer<Theme> {
         let translation = Vector::new(bounds.x, bounds.y);
         iced_widget::core::Renderer::with_translation(self, translation, |renderer| {
             iced_graphics::geometry::Renderer::draw(renderer, vec![geometry]);
-        })
+        });
     }
 }

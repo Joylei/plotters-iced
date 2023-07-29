@@ -54,6 +54,21 @@
 #![warn(missing_docs)]
 
 pub extern crate plotters_backend;
+
+#[doc(no_inline)]
+pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
+#[doc(no_inline)]
+pub use plotters_backend::DrawingBackend;
+
+#[doc(inline)]
+pub use chart::Chart;
+#[doc(inline)]
+pub use chart::Renderer;
+#[doc(inline)]
+pub use error::Error;
+/// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
+pub use widget::ChartWidget;
+
 mod backend;
 mod chart;
 mod error;
@@ -62,19 +77,3 @@ mod renderer;
 pub mod sample;
 mod utils;
 mod widget;
-
-#[doc(inline)]
-pub use chart::Chart;
-#[doc(inline)]
-pub use chart::Renderer;
-
-#[doc(inline)]
-pub use error::Error;
-
-#[doc(no_inline)]
-pub use plotters::{chart::ChartBuilder, drawing::DrawingArea};
-#[doc(no_inline)]
-pub use plotters_backend::DrawingBackend;
-
-/// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
-pub use widget::ChartWidget;

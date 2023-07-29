@@ -290,7 +290,7 @@ impl Chart<Message> for CpuUsageChart {
     }
 
     fn build_chart<DB: DrawingBackend>(&self, _state: &Self::State, mut chart: ChartBuilder<DB>) {
-        use plotters::{prelude::*, style::Color};
+        use plotters::prelude::*;
 
         const PLOT_LINE_COLOR: RGBColor = RGBColor(0, 175, 255);
 

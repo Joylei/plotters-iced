@@ -4,8 +4,8 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use crate::error::Error;
-use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
+use std::collections::HashSet;
+
 use iced_widget::{
     canvas,
     core::{
@@ -16,6 +16,7 @@ use iced_widget::{
 use once_cell::unsync::Lazy;
 use plotters_backend::{
     text_anchor,
+    //FontTransform,
     BackendColor,
     BackendCoord,
     BackendStyle,
@@ -24,9 +25,10 @@ use plotters_backend::{
     DrawingErrorKind,
     FontFamily,
     FontStyle,
-    //FontTransform,
 };
-use std::collections::HashSet;
+
+use crate::error::Error;
+use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B> {

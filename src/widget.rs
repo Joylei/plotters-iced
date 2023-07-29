@@ -4,9 +4,8 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use super::Chart;
-use crate::renderer::Renderer;
 use core::marker::PhantomData;
+
 use iced_widget::{
     canvas::Event,
     core::{
@@ -17,6 +16,10 @@ use iced_widget::{
         Element, Layout, Length, Rectangle, Shell, Size, Widget,
     },
 };
+
+use crate::renderer::Renderer;
+
+use super::Chart;
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
 pub struct ChartWidget<'a, Message, Renderer, C>

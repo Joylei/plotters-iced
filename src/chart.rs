@@ -31,11 +31,11 @@ where
     type State = C::State;
     #[inline]
     fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, builder: ChartBuilder<DB>) {
-        C::build_chart(self, state, builder)
+        C::build_chart(self, state, builder);
     }
     #[inline]
     fn draw_chart<DB: DrawingBackend>(&self, state: &Self::State, root: DrawingArea<DB, Shift>) {
-        C::draw_chart(self, state, root)
+        C::draw_chart(self, state, root);
     }
     #[inline]
     fn draw<R: Renderer, F: Fn(&mut Frame)>(&self, renderer: &R, size: Size, f: F) -> Geometry {
