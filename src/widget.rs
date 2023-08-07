@@ -15,6 +15,7 @@ use iced_widget::{
         widget::{tree, Tree},
         Element, Layout, Length, Rectangle, Shell, Size, Widget,
     },
+    text::Shaping,
 };
 
 use crate::renderer::Renderer;
@@ -29,6 +30,7 @@ where
     chart: C,
     width: Length,
     height: Length,
+    shaping: Shaping,
     _marker: PhantomData<&'a (Renderer, Message)>,
 }
 
@@ -42,6 +44,7 @@ where
             chart,
             width: Length::Fill,
             height: Length::Fill,
+            shaping: Default::default(),
             _marker: Default::default(),
         }
     }
@@ -55,6 +58,12 @@ where
     /// set height
     pub fn height(mut self, height: Length) -> Self {
         self.height = height;
+        self
+    }
+
+    /// set text shaping
+    pub fn text_shaping(mut self, shaping: Shaping) -> Self {
+        self.shaping = shaping;
         self
     }
 }
@@ -106,7 +115,7 @@ where
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<C::State>();
-        renderer.draw_chart(state, &self.chart, layout);
+        renderer.draw_chart(state, &self.chart, layout, self.shaping);
     }
 
     #[inline]
