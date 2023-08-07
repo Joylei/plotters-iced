@@ -8,6 +8,7 @@ use iced_widget::{
     canvas::{Cache, Frame},
     core::{Layout, Size, Vector},
     renderer::Geometry,
+    text::Shaping,
 };
 use plotters::prelude::DrawingArea;
 
@@ -19,8 +20,13 @@ pub trait Renderer:
     iced_widget::core::Renderer + iced_widget::core::text::Renderer + iced_graphics::geometry::Renderer
 {
     /// draw a [Chart]
-    fn draw_chart<Message, C>(&mut self, state: &C::State, chart: &C, layout: Layout<'_>)
-    where
+    fn draw_chart<Message, C>(
+        &mut self,
+        state: &C::State,
+        chart: &C,
+        layout: Layout<'_>,
+        shaping: Shaping,
+    ) where
         C: Chart<Message>;
 }
 
@@ -37,8 +43,13 @@ impl<Theme> crate::chart::Renderer for iced_widget::renderer::Renderer<Theme> {
 }
 
 impl<Theme> Renderer for iced_widget::renderer::Renderer<Theme> {
-    fn draw_chart<Message, C>(&mut self, state: &C::State, chart: &C, layout: Layout<'_>)
-    where
+    fn draw_chart<Message, C>(
+        &mut self,
+        state: &C::State,
+        chart: &C,
+        layout: Layout<'_>,
+        shaping: Shaping,
+    ) where
         C: Chart<Message>,
     {
         let bounds = layout.bounds();
@@ -46,7 +57,7 @@ impl<Theme> Renderer for iced_widget::renderer::Renderer<Theme> {
             return;
         }
         let geometry = chart.draw(self, bounds.size(), |frame| {
-            let backend = IcedChartBackend::new(frame, self);
+            let backend = IcedChartBackend::new(frame, self, shaping);
             let root: DrawingArea<_, _> = backend.into();
             chart.draw_chart(state, root);
         });

@@ -12,6 +12,7 @@ use iced_widget::{
         alignment::{Horizontal, Vertical},
         font, text, Font, Size,
     },
+    text::Shaping,
 };
 use once_cell::unsync::Lazy;
 use plotters_backend::{
@@ -34,14 +35,19 @@ use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
 pub(crate) struct IcedChartBackend<'a, B> {
     frame: &'a mut canvas::Frame,
     backend: &'a B,
+    shaping: Shaping,
 }
 
 impl<'a, B> IcedChartBackend<'a, B>
 where
     B: text::Renderer<Font = Font>,
 {
-    pub fn new(frame: &'a mut canvas::Frame, backend: &'a B) -> Self {
-        Self { frame, backend }
+    pub fn new(frame: &'a mut canvas::Frame, backend: &'a B, shaping: Shaping) -> Self {
+        Self {
+            frame,
+            backend,
+            shaping,
+        }
     }
 }
 
@@ -223,7 +229,7 @@ where
             font,
             horizontal_alignment,
             vertical_alignment,
-            shaping: Default::default(),
+            shaping: self.shaping,
         };
         //TODO: fix rotation until text rotation is supported by Iced
         // let rotate = match style.transform() {
