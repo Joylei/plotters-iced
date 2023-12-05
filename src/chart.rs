@@ -131,7 +131,7 @@ pub trait Chart<Message> {
     ///
     ///       #[inline]
     ///       fn draw<R: Renderer, F: Fn(&mut Frame)>(&self, renderer: &R, bounds: Size, draw_fn: F) -> Geometry {
-    ///            R::draw(renderer, &self.cache, size, draw_fn)
+    ///            R::draw_cache(renderer, &self.cache, size, draw_fn)
     ///       }
     ///      //...
     /// }
