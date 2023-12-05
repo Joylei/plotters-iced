@@ -120,9 +120,9 @@ pub trait Chart<Message> {
         self.build_chart(state, builder);
     }
 
-    /// draw on [`iced_graphics::widget::canvas::Canvas`]
+    /// draw on [`iced_widget::canvas::Canvas`]
     ///
-    /// override this method if you want to use [`iced_graphics::widget::canvas::Cache`]
+    /// override this method if you want to use [`iced_widget::canvas::Cache`]
     ///
     /// ## Example
     /// ```rust,ignore
