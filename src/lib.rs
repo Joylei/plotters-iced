@@ -66,7 +66,6 @@ pub use chart::Chart;
 pub use chart::Renderer;
 #[doc(inline)]
 pub use error::Error;
-/// Chart container, turns [`Chart`]s to [`iced_native::Widget`]s
 pub use widget::ChartWidget;
 
 mod backend;
