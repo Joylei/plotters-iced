@@ -6,6 +6,7 @@
 
 use std::collections::HashSet;
 
+use iced_graphics::core::text::Paragraph;
 use iced_widget::{
     canvas,
     core::{
@@ -224,7 +225,7 @@ where
             content: text.to_owned(),
             position: pos,
             color: cvt_color(&style.color()),
-            size: style.size() as f32,
+            size: (style.size() as f32).into(),
             line_height: Default::default(),
             font,
             horizontal_alignment,
@@ -263,14 +264,29 @@ where
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
         let font = style_to_font(style);
         let bounds = self.frame.size();
-        let size = self.backend.measure(
-            text,
-            style.size() as f32,
-            Default::default(),
-            font,
+        let horizontal_alignment = match style.anchor().h_pos {
+            text_anchor::HPos::Left => Horizontal::Left,
+            text_anchor::HPos::Right => Horizontal::Right,
+            text_anchor::HPos::Center => Horizontal::Center,
+        };
+        let vertical_alignment = match style.anchor().v_pos {
+            text_anchor::VPos::Top => Vertical::Top,
+            text_anchor::VPos::Center => Vertical::Center,
+            text_anchor::VPos::Bottom => Vertical::Bottom,
+        };
+
+        let mut p = B::Paragraph::default();
+        p.update(iced_widget::core::text::Text {
+            content: text,
             bounds,
-            Default::default(),
-        );
+            size: self.backend.default_size(),
+            line_height: Default::default(),
+            font,
+            horizontal_alignment,
+            vertical_alignment,
+            shaping: self.shaping,
+        });
+        let size = p.min_bounds();
         Ok((size.width as u32, size.height as u32))
     }
 

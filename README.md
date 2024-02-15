@@ -30,8 +30,8 @@ Include `plotters-iced` in your `Cargo.toml` dependencies:
 
 ```toml
 [dependencies]
-plotters-iced = "0.9"
-iced = { version = "0.10", features = ["canvas", "tokio"] }
+plotters-iced = "0.10"
+iced = { version = "0.12", features = ["canvas", "tokio"] }
 plotters="0.3"
 ```
 
@@ -61,8 +61,8 @@ Finally, render your chart view:
 impl MyChart {
     fn view(&mut self)->Element<Message> {
         ChartWidget::new(self)
-            .width(Length::Unit(200))
-            .height(Length::Unit(200))
+            .width(Length::Fixed(200))
+            .height(Length::Fixed(200))
             .into()
     }
 }

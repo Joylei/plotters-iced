@@ -30,7 +30,7 @@ pub trait Renderer:
         C: Chart<Message>;
 }
 
-impl<Theme> crate::chart::Renderer for iced_widget::renderer::Renderer<Theme> {
+impl crate::chart::Renderer for iced_widget::renderer::Renderer {
     fn draw<F: Fn(&mut Frame)>(&self, size: Size, f: F) -> Geometry {
         let mut frame = Frame::new(self, size);
         f(&mut frame);
@@ -42,7 +42,7 @@ impl<Theme> crate::chart::Renderer for iced_widget::renderer::Renderer<Theme> {
     }
 }
 
-impl<Theme> Renderer for iced_widget::renderer::Renderer<Theme> {
+impl Renderer for iced_widget::renderer::Renderer {
     fn draw_chart<Message, C>(
         &mut self,
         state: &C::State,

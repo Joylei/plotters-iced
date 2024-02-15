@@ -79,8 +79,8 @@ where
 /// impl MyChart {
 ///     fn view(&mut self)->Element<Message> {
 ///         ChartWidget::new(self)
-///             .width(Length::Unit(200))
-///             .height(Length::Unit(200))
+///             .width(Length::Fixed(200))
+///             .height(Length::Fixed(200))
 ///             .into()
 ///     }
 /// }
