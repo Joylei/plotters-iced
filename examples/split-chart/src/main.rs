@@ -37,6 +37,11 @@ const TITLE_FONT_SIZE: u16 = 22;
 // antialiasing issue: https://github.com/iced-rs/iced/issues/1159
 
 fn main() {
+    #[cfg(target_arch = "wasm32")]
+    {
+        console_log::init().expect("Initialize logger");
+        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    }
     State::run(Settings {
         #[cfg(not(target_arch = "wasm32"))]
         antialiasing: true,
