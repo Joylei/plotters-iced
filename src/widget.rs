@@ -23,7 +23,7 @@ use crate::renderer::Renderer;
 use super::Chart;
 
 /// Chart container, turns [`Chart`]s to [`Widget`]s
-pub struct ChartWidget<'a, Message, Renderer, C>
+pub struct ChartWidget<'a, Message, Theme, Renderer, C>
 where
     C: Chart<Message>,
 {
@@ -31,10 +31,10 @@ where
     width: Length,
     height: Length,
     shaping: Shaping,
-    _marker: PhantomData<&'a (Renderer, Message)>,
+    _marker: PhantomData<&'a (Renderer, Theme, Message)>,
 }
 
-impl<'a, Message, Renderer, C> ChartWidget<'a, Message, Renderer, C>
+impl<'a, Message, Theme, Renderer, C> ChartWidget<'a, Message, Theme, Renderer, C>
 where
     C: Chart<Message> + 'a,
 {
@@ -68,17 +68,14 @@ where
     }
 }
 
-impl<'a, Message, Renderer, C> Widget<Message, Renderer> for ChartWidget<'a, Message, Renderer, C>
+impl<'a, Message, Theme, Renderer, C> Widget<Message, Theme, Renderer>
+    for ChartWidget<'a, Message, Theme, Renderer, C>
 where
     C: Chart<Message>,
     Renderer: self::Renderer,
 {
-    fn width(&self) -> Length {
-        self.width
-    }
-
-    fn height(&self) -> Length {
-        self.height
+    fn size(&self) -> Size<Length> {
+        Size::new(self.width, self.height)
     }
 
     fn tag(&self) -> tree::Tag {
@@ -93,13 +90,11 @@ where
     #[inline]
     fn layout(
         &self,
+        _tree: &mut Tree,
         _renderer: &Renderer,
         limits: &iced_widget::core::layout::Limits,
     ) -> iced_widget::core::layout::Node {
-        let size = limits
-            .width(self.width)
-            .height(self.height)
-            .resolve(Size::ZERO);
+        let size = limits.resolve(self.width, self.height, Size::ZERO);
         iced_widget::core::layout::Node::new(size)
     }
 
@@ -108,7 +103,7 @@ where
         &self,
         tree: &Tree,
         renderer: &mut Renderer,
-        _theme: &<Renderer as iced_widget::core::Renderer>::Theme,
+        _theme: &Theme,
         _style: &Style,
         layout: Layout<'_>,
         _cursor_position: Cursor,
@@ -165,14 +160,14 @@ where
     }
 }
 
-impl<'a, Message, Renderer, C> From<ChartWidget<'a, Message, Renderer, C>>
-    for Element<'a, Message, Renderer>
+impl<'a, Message, Theme, Renderer, C> From<ChartWidget<'a, Message, Theme, Renderer, C>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a,
     C: Chart<Message> + 'a,
     Renderer: self::Renderer,
 {
-    fn from(widget: ChartWidget<'a, Message, Renderer, C>) -> Self {
+    fn from(widget: ChartWidget<'a, Message, Theme, Renderer, C>) -> Self {
         Element::new(widget)
     }
 }
