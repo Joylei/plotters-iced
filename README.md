@@ -39,13 +39,13 @@ plotters="0.3"
 
 First, import `Chart` and `ChartWidget`:
 
-```rust
+```rust,ignore
 use plotters_iced::{Chart, ChartWidget, DrawingBackend, ChartBuilder};
 ```
 
 Then, derive `Chart` trait and build your chart, and let `plotters-iced` takes care the rest:
 
-```rust
+```rust,ignore
 struct MyChart;
 impl Chart<Message> for MyChart {
     type State = ();
@@ -57,7 +57,7 @@ impl Chart<Message> for MyChart {
 
 Finally, render your chart view:
 
-```rust
+```rust,ignore
 impl MyChart {
     fn view(&mut self)->Element<Message> {
         ChartWidget::new(self)
