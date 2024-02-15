@@ -25,7 +25,7 @@ use std::{
     collections::VecDeque,
     time::{Duration, Instant},
 };
-use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
+use sysinfo::{CpuRefreshKind, RefreshKind, System};
 
 const PLOT_SECONDS: usize = 60; //1 min
 const TITLE_FONT_SIZE: u16 = 22;
