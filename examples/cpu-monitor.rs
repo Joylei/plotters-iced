@@ -186,7 +186,10 @@ impl SystemChart {
                 .vertical_alignment(Vertical::Center)
                 .into()
         } else {
-            let mut col = Column::new().width(Length::Fill).height(Length::Shrink);
+            let mut col = Column::new()
+                .width(Length::Fill)
+                .height(Length::Shrink)
+                .align_items(Alignment::Center);
 
             let chart_height = self.chart_height;
             let mut idx = 0;
@@ -195,20 +198,20 @@ impl SystemChart {
                     .spacing(15)
                     .padding(20)
                     .width(Length::Fill)
-                    .height(Length::Fixed(chart_height))
+                    .height(Length::Shrink)
                     .align_items(Alignment::Center);
                 for item in chunk {
-                    row = row.push(item.view(idx));
+                    row = row.push(item.view(idx, chart_height));
                     idx += 1;
                 }
                 while idx % self.items_per_row != 0 {
-                    row = row.push(Space::new(Length::Fill, Length::Fill));
+                    row = row.push(Space::new(Length::Fill, Length::Fixed(50.0)));
                     idx += 1;
                 }
                 col = col.push(row);
             }
 
-            Scrollable::new(col).height(Length::Fill).into()
+            Scrollable::new(col).height(Length::Shrink).into()
         }
     }
 }
@@ -245,20 +248,15 @@ impl CpuUsageChart {
         self.cache.clear();
     }
 
-    fn view(&self, idx: usize) -> Element<Message> {
-        Container::new(
-            Column::new()
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .spacing(5)
-                .push(Text::new(format!("Processor {}", idx)))
-                .push(ChartWidget::new(self).height(Length::Fill)),
-        )
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .align_x(Horizontal::Center)
-        .align_y(Vertical::Center)
-        .into()
+    fn view(&self, idx: usize, chart_height: f32) -> Element<Message> {
+        Column::new()
+            .width(Length::Fill)
+            .height(Length::Shrink)
+            .spacing(5)
+            .align_items(Alignment::Center)
+            .push(Text::new(format!("Processor {}", idx)))
+            .push(ChartWidget::new(self).height(Length::Fixed(chart_height)))
+            .into()
     }
 }
 
