@@ -20,7 +20,7 @@ members = [".", "examples/split-chart"]
 plotters = { version = "0.3", default_features = false }
 plotters-backend = "0.3"
 iced_widget = { version = "0.1", features = ["canvas"] }
-iced_graphics = "0.9"
+iced_graphics = "0.12"
 once_cell = "1"
 
 [dev-dependencies]
