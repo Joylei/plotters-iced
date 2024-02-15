@@ -8,7 +8,7 @@ extern crate iced;
 extern crate plotters;
 extern crate sysinfo;
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use iced::{
     alignment::{Horizontal, Vertical},
     executor, font,
@@ -292,10 +292,7 @@ impl Chart<Message> for CpuUsageChart {
             .data_points
             .front()
             .unwrap_or(&(
-                chrono::DateTime::from_utc(
-                    chrono::NaiveDateTime::from_timestamp_opt(0, 0).unwrap(),
-                    chrono::Utc,
-                ),
+                Utc.from_utc_datetime(&chrono::NaiveDateTime::from_timestamp_opt(0, 0).unwrap()),
                 0,
             ))
             .0;
