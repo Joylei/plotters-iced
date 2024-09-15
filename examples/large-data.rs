@@ -11,12 +11,12 @@ extern crate tokio;
 
 use chrono::{DateTime, Utc};
 use iced::{
-    executor, font,
+    font,
     widget::{
         canvas::{Cache, Frame, Geometry},
         Column, Container, Text,
     },
-    Alignment, Application, Command, Element, Font, Length, Settings, Size, Subscription, Theme,
+    Alignment, Element, Font, Length, Size, Task,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -37,12 +37,11 @@ const FONT_BOLD: Font = Font {
 };
 
 fn main() {
-    State::run(Settings {
-        antialiasing: true,
-        default_font: Font::with_name("Noto Sans"),
-        ..Settings::default()
-    })
-    .unwrap();
+    iced::application("Large Data Example", State::update, State::view)
+        .antialiasing(true)
+        .default_font(Font::with_name("Noto Sans"))
+        .run_with(State::new)
+        .unwrap();
 }
 
 struct Wrapper<'a>(&'a DateTime<Utc>, &'a f32);
@@ -69,34 +68,25 @@ struct State {
     chart: Option<ExampleChart>,
 }
 
-impl Application for State {
-    type Message = self::Message;
-    type Executor = executor::Default;
-    type Flags = ();
-    type Theme = Theme;
-
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+impl State {
+    fn new() -> (Self, Task<Message>) {
         (
             Self { chart: None },
-            Command::batch([
+            Task::batch([
                 font::load(include_bytes!("./fonts/notosans-regular.ttf").as_slice())
                     .map(Message::FontLoaded),
                 font::load(include_bytes!("./fonts/notosans-bold.ttf").as_slice())
                     .map(Message::FontLoaded),
-                Command::perform(tokio::task::spawn_blocking(generate_data), |data| {
+                Task::perform(tokio::task::spawn_blocking(generate_data), |data| {
                     Message::DataLoaded(data.unwrap())
                 }),
             ]),
         )
     }
 
-    fn title(&self) -> String {
-        "Large Data Example".to_owned()
-    }
-
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+    fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::DataLoaded(data) => Command::perform(
+            Message::DataLoaded(data) => Task::perform(
                 tokio::task::spawn_blocking(move || {
                     let now = Instant::now();
                     let sampled: Vec<_> = (&data[..])
@@ -111,16 +101,16 @@ impl Application for State {
             ),
             Message::Sampled(sampled) => {
                 self.chart = Some(ExampleChart::new(sampled.into_iter()));
-                Command::none()
+                Task::none()
             }
-            _ => Command::none(),
+            _ => Task::none(),
         }
     }
 
-    fn view(&self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Message> {
         let content = Column::new()
             .spacing(20)
-            .align_items(Alignment::Start)
+            .align_x(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(
@@ -134,16 +124,10 @@ impl Application for State {
             });
 
         Container::new(content)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .padding(5)
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into()
-    }
-
-    fn subscription(&self) -> Subscription<Self::Message> {
-        Subscription::none()
     }
 }
 

@@ -275,8 +275,7 @@ where
             text_anchor::VPos::Bottom => Vertical::Bottom,
         };
 
-        let mut p = B::Paragraph::default();
-        p.update(iced_widget::core::text::Text {
+        let p = B::Paragraph::with_text(iced_widget::core::text::Text {
             content: text,
             bounds,
             size: self.backend.default_size(),
@@ -285,6 +284,7 @@ where
             horizontal_alignment,
             vertical_alignment,
             shaping: self.shaping,
+            wrapping: iced_widget::core::text::Wrapping::Word,
         });
         let size = p.min_bounds();
         Ok((size.width as u32, size.height as u32))

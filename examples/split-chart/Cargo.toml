@@ -6,9 +6,9 @@ edition = "2021"
 publish = false
 
 [dependencies]
-iced = { version = "0.12", features = ["canvas"] }
+iced = { version = "0.13", features = ["canvas"] }
 plotters-iced = { path = "../../" }
-plotters = { version = "0.3", default_features = false, features = [
+plotters = { version = "0.3", default-features = false, features = [
     "chrono",
     "area_series",
     "line_series",
@@ -16,7 +16,7 @@ plotters = { version = "0.3", default_features = false, features = [
 ] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-iced.version = "0.12"
+iced.version = "0.13"
 iced.features = ["canvas", "debug", "webgl"]
 
 console_error_panic_hook = "0.1"

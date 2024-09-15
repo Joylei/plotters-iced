@@ -5,13 +5,13 @@
 // License: MIT
 
 use iced::{
-    event, executor,
+    event,
     mouse::Cursor,
     widget::{
         canvas::{self, Cache, Frame, Geometry},
         Column, Container, Text,
     },
-    Alignment, Application, Command, Element, Length, Point, Size, Theme,
+    Alignment, Element, Length, Point, Size,
 };
 use plotters::{
     coord::{types::RangedCoordf32, ReverseCoordTranslate},
@@ -20,30 +20,13 @@ use plotters::{
 use plotters_iced::{Chart, ChartWidget, Renderer};
 use std::cell::RefCell;
 
+#[derive(Default)]
 struct State {
     chart: ArtChart,
 }
 
-impl Application for State {
-    type Message = Message;
-    type Executor = executor::Default;
-    type Flags = ();
-    type Theme = Theme;
-
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        (
-            Self {
-                chart: ArtChart::default(),
-            },
-            Command::none(),
-        )
-    }
-
-    fn title(&self) -> String {
-        "Art".to_owned()
-    }
-
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+impl State {
+    fn update(&mut self, message: Message) {
         match message {
             Message::MouseEvent(event, point) => {
                 self.chart.set_current_position(point);
@@ -60,26 +43,22 @@ impl Application for State {
                 }
             }
         }
-
-        Command::none()
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<Message> {
         let content = Column::new()
             .spacing(20)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(Text::new("Click below!").size(20))
             .push(self.chart.view())
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .padding(15);
 
         Container::new(content)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .padding(5)
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into()
     }
 }
@@ -260,8 +239,7 @@ enum Message {
 }
 
 fn main() -> iced::Result {
-    State::run(iced::Settings {
-        antialiasing: true,
-        ..Default::default()
-    })
+    iced::application("Art", State::update, State::view)
+        .antialiasing(true)
+        .run()
 }

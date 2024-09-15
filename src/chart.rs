@@ -24,7 +24,7 @@ pub trait Renderer {
     fn draw_cache<F: Fn(&mut Frame)>(&self, cache: &Cache, bounds: Size, draw_fn: F) -> Geometry;
 }
 
-impl<Message, C> Chart<Message> for &C
+impl<Message, C: ?Sized> Chart<Message> for &C
 where
     C: Chart<Message>,
 {

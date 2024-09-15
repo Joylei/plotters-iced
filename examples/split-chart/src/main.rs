@@ -24,9 +24,8 @@ extern crate iced;
 extern crate plotters;
 
 use iced::{
-    executor,
     widget::{Column, Container, Text},
-    window, Alignment, Application, Command, Element, Length, Settings, Subscription, Theme,
+    window, Alignment, Element, Length,
 };
 use plotters::{coord::Shift, prelude::*};
 use plotters_backend::DrawingBackend;
@@ -42,12 +41,10 @@ fn main() {
         console_log::init().expect("Initialize logger");
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     }
-    State::run(Settings {
-        #[cfg(not(target_arch = "wasm32"))]
-        antialiasing: true,
-        ..Settings::default()
-    })
-    .unwrap();
+    let app = iced::application("Split Chart Example", State::update, State::view)
+        .antialiasing(cfg!(not(target_arch = "wasm32")))
+        .subscription(|_| window::frames().map(|_| Message::Tick));
+    app.run().unwrap();
 }
 
 #[allow(unused)]
@@ -56,64 +53,36 @@ enum Message {
     Tick,
 }
 
+#[derive(Default)]
 struct State {
     chart: MyChart,
 }
 
-impl Application for State {
-    type Message = self::Message;
-    type Executor = executor::Default;
-    type Flags = ();
-    type Theme = Theme;
+impl State {
+    fn update(&mut self, _message: Message) {}
 
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        (
-            Self {
-                chart: MyChart::new(),
-            },
-            Command::none(),
-        )
-    }
-
-    fn title(&self) -> String {
-        "Split Chart Example".to_owned()
-    }
-
-    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
-        Command::none()
-    }
-
-    fn view(&self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Message> {
         let content = Column::new()
             .spacing(20)
-            .align_items(Alignment::Start)
+            .align_x(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(Text::new("Iced test chart").size(TITLE_FONT_SIZE))
             .push(self.chart.view());
 
         Container::new(content)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .padding(5)
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into()
-    }
-
-    fn subscription(&self) -> Subscription<Self::Message> {
-        window::frames().map(|_| Message::Tick)
     }
 }
 
 #[allow(unused)]
+#[derive(Default)]
 struct MyChart;
 
 impl MyChart {
-    pub fn new() -> Self {
-        Self
-    }
-
     fn view(&self) -> Element<Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)

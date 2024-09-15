@@ -8,15 +8,15 @@ extern crate iced;
 extern crate plotters;
 extern crate sysinfo;
 
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, Utc};
 use iced::{
     alignment::{Horizontal, Vertical},
-    executor, font,
+    font,
     widget::{
         canvas::{Cache, Frame, Geometry},
         Column, Container, Row, Scrollable, Space, Text,
     },
-    Alignment, Application, Command, Element, Font, Length, Settings, Size, Subscription, Theme,
+    Alignment, Element, Font, Length, Size, Task,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -38,12 +38,15 @@ const FONT_BOLD: Font = Font {
 };
 
 fn main() {
-    State::run(Settings {
-        antialiasing: true,
-        default_font: Font::with_name("Noto Sans"),
-        ..Settings::default()
-    })
-    .unwrap();
+    iced::application("CPU Monitor Example", State::update, State::view)
+        .antialiasing(true)
+        .default_font(Font::with_name("Noto Sans"))
+        .subscription(|_| {
+            const FPS: u64 = 50;
+            iced::time::every(Duration::from_millis(1000 / FPS)).map(|_| Message::Tick)
+        })
+        .run_with(State::new)
+        .unwrap();
 }
 
 #[derive(Debug)]
@@ -57,18 +60,13 @@ struct State {
     chart: SystemChart,
 }
 
-impl Application for State {
-    type Message = self::Message;
-    type Executor = executor::Default;
-    type Flags = ();
-    type Theme = Theme;
-
-    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+impl State {
+    fn new() -> (Self, Task<Message>) {
         (
             Self {
                 chart: Default::default(),
             },
-            Command::batch([
+            Task::batch([
                 font::load(include_bytes!("./fonts/notosans-regular.ttf").as_slice())
                     .map(Message::FontLoaded),
                 font::load(include_bytes!("./fonts/notosans-bold.ttf").as_slice())
@@ -77,24 +75,19 @@ impl Application for State {
         )
     }
 
-    fn title(&self) -> String {
-        "CPU Monitor Example".to_owned()
-    }
-
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+    fn update(&mut self, message: Message) {
         match message {
             Message::Tick => {
                 self.chart.update();
             }
             _ => {}
         }
-        Command::none()
     }
 
-    fn view(&self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Message> {
         let content = Column::new()
             .spacing(20)
-            .align_items(Alignment::Start)
+            .align_x(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .push(
@@ -106,17 +99,10 @@ impl Application for State {
 
         Container::new(content)
             //.style(style::Container)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .padding(5)
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into()
-    }
-
-    fn subscription(&self) -> Subscription<Self::Message> {
-        const FPS: u64 = 50;
-        iced::time::every(Duration::from_millis(1000 / FPS)).map(|_| Message::Tick)
     }
 }
 
@@ -182,14 +168,14 @@ impl SystemChart {
     fn view(&self) -> Element<Message> {
         if !self.is_initialized() {
             Text::new("Loading...")
-                .horizontal_alignment(Horizontal::Center)
-                .vertical_alignment(Vertical::Center)
+                .align_x(Horizontal::Center)
+                .align_y(Vertical::Center)
                 .into()
         } else {
             let mut col = Column::new()
                 .width(Length::Fill)
                 .height(Length::Shrink)
-                .align_items(Alignment::Center);
+                .align_x(Alignment::Center);
 
             let chart_height = self.chart_height;
             let mut idx = 0;
@@ -199,7 +185,7 @@ impl SystemChart {
                     .padding(20)
                     .width(Length::Fill)
                     .height(Length::Shrink)
-                    .align_items(Alignment::Center);
+                    .align_y(Alignment::Center);
                 for item in chunk {
                     row = row.push(item.view(idx, chart_height));
                     idx += 1;
@@ -253,7 +239,7 @@ impl CpuUsageChart {
             .width(Length::Fill)
             .height(Length::Shrink)
             .spacing(5)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .push(Text::new(format!("Processor {}", idx)))
             .push(ChartWidget::new(self).height(Length::Fixed(chart_height)))
             .into()
@@ -291,10 +277,7 @@ impl Chart<Message> for CpuUsageChart {
         let newest_time = self
             .data_points
             .front()
-            .unwrap_or(&(
-                Utc.from_utc_datetime(&chrono::NaiveDateTime::from_timestamp_opt(0, 0).unwrap()),
-                0,
-            ))
+            .unwrap_or(&(DateTime::from_timestamp(0, 0).unwrap(), 0))
             .0;
         let oldest_time = newest_time - chrono::Duration::seconds(PLOT_SECONDS as i64);
         let mut chart = chart
@@ -316,7 +299,7 @@ impl Chart<Message> for CpuUsageChart {
                     .color(&plotters::style::colors::BLUE.mix(0.65))
                     .transform(FontTransform::Rotate90),
             )
-            .y_label_formatter(&|y| format!("{}%", y))
+            .y_label_formatter(&|y: &i32| format!("{}%", y))
             .draw()
             .expect("failed to draw chart mesh");
 

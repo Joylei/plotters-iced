@@ -17,23 +17,23 @@ authors = ["Joylei <leingliu@gmail.com>"]
 members = [".", "examples/split-chart"]
 
 [dependencies]
-plotters = { version = "0.3", default_features = false }
+plotters = { version = "0.3", default-features = false }
 plotters-backend = "0.3"
-iced_widget = { version = "0.12", features = ["canvas"] }
-iced_graphics = "0.12"
+iced_widget = { version = "0.13", features = ["canvas"] }
+iced_graphics = "0.13"
 once_cell = "1"
 
 [dev-dependencies]
-plotters = { version = "0.3", default_features = false, features = [
+plotters = { version = "0.3", default-features = false, features = [
     "chrono",
     "area_series",
     "line_series",
     "point_series",
 ] }
-iced = { version = "0.12", features = ["canvas", "tokio"] }
+iced = { version = "0.13", features = ["canvas", "tokio"] }
 chrono = { version = "0.4", default-features = false }
 rand = "0.8"
 tokio = { version = "1", features = ["rt"], default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-sysinfo = { version = "0.30", default_features = false }
+sysinfo = { version = "0.30", default-features = false }

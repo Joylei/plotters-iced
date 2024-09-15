@@ -5,9 +5,8 @@
 // License: MIT
 
 use iced_widget::{
-    canvas::{Cache, Frame},
+    canvas::{Cache, Frame, Geometry},
     core::{Layout, Size, Vector},
-    renderer::Geometry,
     text::Shaping,
 };
 use plotters::prelude::DrawingArea;
@@ -63,7 +62,7 @@ impl Renderer for iced_widget::renderer::Renderer {
         });
         let translation = Vector::new(bounds.x, bounds.y);
         iced_widget::core::Renderer::with_translation(self, translation, |renderer| {
-            iced_graphics::geometry::Renderer::draw(renderer, vec![geometry]);
+            iced_graphics::geometry::Renderer::draw_geometry(renderer, geometry);
         });
     }
 }
