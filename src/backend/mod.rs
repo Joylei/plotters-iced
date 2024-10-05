@@ -4,15 +4,15 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use std::collections::HashSet;
-
 use iced_graphics::core::text::Paragraph;
+use iced_widget::core::Rectangle;
 use iced_widget::{
     canvas,
     core::{
         alignment::{Horizontal, Vertical},
         font, text, Font, Size,
     },
+    image,
     text::Shaping,
 };
 use once_cell::unsync::Lazy;
@@ -28,6 +28,7 @@ use plotters_backend::{
     FontFamily,
     FontStyle,
 };
+use std::collections::HashSet;
 
 use crate::error::Error;
 use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
@@ -293,13 +294,16 @@ where
     #[inline]
     fn blit_bitmap(
         &mut self,
-        _pos: BackendCoord,
-        (_iw, _ih): (u32, u32),
-        _src: &[u8],
+        (x, y): BackendCoord,
+        (iw, ih): (u32, u32),
+        src: &[u8],
     ) -> Result<(), DrawingErrorKind<Self::ErrorType>> {
-        // Not supported yet (rendering ignored)
-        // Notice: currently Iced has limitations, because widgets are not rendered in the order of creation, and different primitives go to different render pipelines.
+        let image = image::Handle::from_rgba(iw, ih, src.to_owned());
 
+        let pos = (x - iw as i32 / 2, y - ih as i32 / 2) as BackendCoord;
+
+        let bounds = Rectangle::new(pos.cvt_point(), Size::new(iw as f32, ih as f32));
+        self.frame.draw_image(bounds, &image);
         Ok(())
     }
 }
