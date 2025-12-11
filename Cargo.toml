@@ -21,7 +21,6 @@ plotters = { version = "0.3", default-features = false }
 plotters-backend = "0.3"
 iced_widget = { version = "0.14", features = ["canvas"] }
 iced_graphics = "0.14"
-once_cell = "1"
 
 [dev-dependencies]
 plotters = { version = "0.3", default-features = false, features = [

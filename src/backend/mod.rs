@@ -14,7 +14,6 @@ use iced_widget::{
     text::Alignment,
     text::Shaping,
 };
-use once_cell::unsync::Lazy;
 use plotters_backend::{
     //FontTransform,
     BackendColor,
@@ -27,7 +26,7 @@ use plotters_backend::{
     FontStyle,
     text_anchor,
 };
-use std::collections::HashSet;
+use std::sync::{LazyLock, Mutex};
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B> {
@@ -302,10 +301,9 @@ where
     }
 }
 
-#[allow(static_mut_refs)]
 fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
     // iced font family requires static str
-    static mut FONTS: Lazy<HashSet<String>> = Lazy::new(HashSet::new);
+    static FONTS: LazyLock<Mutex<Vec<&'static str>>> = LazyLock::new(|| Mutex::new(Vec::new()));
 
     Font {
         family: match style.family() {
@@ -313,13 +311,17 @@ fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
             FontFamily::SansSerif => font::Family::SansSerif,
             FontFamily::Monospace => font::Family::Monospace,
             FontFamily::Name(s) => {
-                let s = unsafe {
-                    if !FONTS.contains(s) {
-                        FONTS.insert(String::from(s));
+                if let Ok(mut vec_guard) = FONTS.lock() {
+                    if let Some(&s) = vec_guard.iter().find(|&&vec_str| vec_str == s) {
+                        font::Family::Name(s)
+                    } else {
+                        let leaked_str = &Box::leak(Box::new(String::from(s)))[..];
+                        vec_guard.push(&leaked_str);
+                        font::Family::Name(leaked_str)
                     }
-                    FONTS.get(s).unwrap().as_str()
-                };
-                font::Family::Name(s)
+                } else {
+                    font::Family::default()
+                }
             }
         },
         weight: match style.style() {
