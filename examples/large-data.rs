@@ -11,24 +11,23 @@ extern crate tokio;
 
 use chrono::{DateTime, Utc};
 use iced::{
-    font,
+    Alignment, Element, Font, Length, Size, Task, font,
     widget::{
-        canvas::{Cache, Frame, Geometry},
         Column, Container, Text,
+        canvas::{Cache, Frame, Geometry},
     },
-    Alignment, Element, Font, Length, Size, Task,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
 use plotters_iced::{
-    sample::lttb::{DataPoint, LttbSource},
     Chart, ChartWidget, Renderer,
+    sample::lttb::{DataPoint, LttbSource},
 };
 use rand::Rng;
 use std::time::Duration;
 use std::{collections::VecDeque, time::Instant};
 
-const TITLE_FONT_SIZE: u16 = 22;
+const TITLE_FONT_SIZE: u32 = 22;
 
 const FONT_BOLD: Font = Font {
     family: font::Family::Name("Noto Sans"),
@@ -37,10 +36,11 @@ const FONT_BOLD: Font = Font {
 };
 
 fn main() {
-    iced::application("Large Data Example", State::update, State::view)
+    iced::application(State::new, State::update, State::view)
+        .title("Large Data Example")
         .antialiasing(true)
         .default_font(Font::with_name("Noto Sans"))
-        .run_with(State::new)
+        .run()
         .unwrap();
 }
 
@@ -145,7 +145,7 @@ impl ExampleChart {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         let chart = ChartWidget::new(self)
             .width(Length::Fill)
             .height(Length::Fill);

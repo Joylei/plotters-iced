@@ -116,7 +116,7 @@ where
     }
 }
 
-impl<'a, S: LttbSource> LttbSource for &'a S {
+impl<S: LttbSource> LttbSource for &S {
     type Item = S::Item;
     #[inline]
     fn len(&self) -> usize {

@@ -1,10 +1,10 @@
 [package]
 name = "plotters-iced"
-version = "0.11.0"
+version = "0.12.0"
 description = "Iced backend for Plotters"
 readme = "README.md"
 license = "MIT"
-edition = "2021"
+edition = "2024"
 resolver = "2"
 homepage = "https://github.com/Joylei/plotters-iced"
 repository = "https://github.com/Joylei/plotters-iced.git"
@@ -19,8 +19,8 @@ members = [".", "examples/split-chart"]
 [dependencies]
 plotters = { version = "0.3", default-features = false }
 plotters-backend = "0.3"
-iced_widget = { version = "0.13", features = ["canvas"] }
-iced_graphics = "0.13"
+iced_widget = { version = "0.14", features = ["canvas"] }
+iced_graphics = "0.14"
 once_cell = "1"
 
 [dev-dependencies]
@@ -30,7 +30,7 @@ plotters = { version = "0.3", default-features = false, features = [
     "line_series",
     "point_series",
 ] }
-iced = { version = "0.13", features = ["canvas", "tokio"] }
+iced = { version = "0.14", features = ["canvas", "tokio"] }
 chrono = { version = "0.4", default-features = false }
 rand = "0.8"
 tokio = { version = "1", features = ["rt"], default-features = false }

@@ -11,8 +11,8 @@ use iced_widget::{
 };
 use plotters::prelude::DrawingArea;
 
-use crate::backend::IcedChartBackend;
 use crate::Chart;
+use crate::backend::IcedChartBackend;
 
 /// Graphics Renderer
 pub trait Renderer:

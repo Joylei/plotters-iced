@@ -10,13 +10,13 @@ extern crate sysinfo;
 
 use chrono::{DateTime, Utc};
 use iced::{
+    Alignment, Element, Font, Length, Size, Task,
     alignment::{Horizontal, Vertical},
     font,
     widget::{
-        canvas::{Cache, Frame, Geometry},
         Column, Container, Row, Scrollable, Space, Text,
+        canvas::{Cache, Frame, Geometry},
     },
-    Alignment, Element, Font, Length, Size, Task,
 };
 use plotters::prelude::ChartBuilder;
 use plotters_backend::DrawingBackend;
@@ -28,7 +28,7 @@ use std::{
 use sysinfo::{CpuRefreshKind, RefreshKind, System};
 
 const PLOT_SECONDS: usize = 60; //1 min
-const TITLE_FONT_SIZE: u16 = 22;
+const TITLE_FONT_SIZE: u32 = 22;
 const SAMPLE_EVERY: Duration = Duration::from_millis(1000);
 
 const FONT_BOLD: Font = Font {
@@ -38,14 +38,15 @@ const FONT_BOLD: Font = Font {
 };
 
 fn main() {
-    iced::application("CPU Monitor Example", State::update, State::view)
+    iced::application(State::new, State::update, State::view)
+        .title("CPU Monitor Example")
         .antialiasing(true)
         .default_font(Font::with_name("Noto Sans"))
         .subscription(|_| {
             const FPS: u64 = 50;
             iced::time::every(Duration::from_millis(1000 / FPS)).map(|_| Message::Tick)
         })
-        .run_with(State::new)
+        .run()
         .unwrap();
 }
 
@@ -165,7 +166,7 @@ impl SystemChart {
         }
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         if !self.is_initialized() {
             Text::new("Loading...")
                 .align_x(Horizontal::Center)
@@ -191,7 +192,7 @@ impl SystemChart {
                     idx += 1;
                 }
                 while idx % self.items_per_row != 0 {
-                    row = row.push(Space::new(Length::Fill, Length::Fixed(50.0)));
+                    row = row.push(Space::new().width(Length::Fill).height(Length::Fixed(50.0)));
                     idx += 1;
                 }
                 col = col.push(row);
@@ -234,7 +235,7 @@ impl CpuUsageChart {
         self.cache.clear();
     }
 
-    fn view(&self, idx: usize, chart_height: f32) -> Element<Message> {
+    fn view(&self, idx: usize, chart_height: f32) -> Element<'_, Message> {
         Column::new()
             .width(Length::Fill)
             .height(Length::Shrink)

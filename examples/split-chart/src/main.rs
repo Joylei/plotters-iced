@@ -41,7 +41,8 @@ fn main() {
         console_log::init().expect("Initialize logger");
         std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     }
-    let app = iced::application("Split Chart Example", State::update, State::view)
+    let app = iced::application(State::new, State::update, State::view)
+        .title("Split Chart Example")
         .antialiasing(cfg!(not(target_arch = "wasm32")))
         .subscription(|_| window::frames().map(|_| Message::Tick));
     app.run().unwrap();
@@ -59,6 +60,10 @@ struct State {
 }
 
 impl State {
+    fn new() -> Self {
+        Self::default()
+    }
+
     fn update(&mut self, _message: Message) {}
 
     fn view(&self) -> Element<'_, Message> {

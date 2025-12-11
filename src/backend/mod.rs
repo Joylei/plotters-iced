@@ -4,20 +4,18 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
-use std::collections::HashSet;
-
+use crate::error::Error;
+use crate::utils::{CvtPoint, cvt_color, cvt_stroke};
 use iced_graphics::core::text::Paragraph;
+use iced_widget::text::LineHeight;
 use iced_widget::{
     canvas,
-    core::{
-        alignment::{Horizontal, Vertical},
-        font, text, Font, Size,
-    },
+    core::{Font, Size, alignment::Vertical, font, text},
+    text::Alignment,
     text::Shaping,
 };
 use once_cell::unsync::Lazy;
 use plotters_backend::{
-    text_anchor,
     //FontTransform,
     BackendColor,
     BackendCoord,
@@ -27,10 +25,9 @@ use plotters_backend::{
     DrawingErrorKind,
     FontFamily,
     FontStyle,
+    text_anchor,
 };
-
-use crate::error::Error;
-use crate::utils::{cvt_color, cvt_stroke, CvtPoint};
+use std::collections::HashSet;
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B> {
@@ -52,7 +49,7 @@ where
     }
 }
 
-impl<'a, B> DrawingBackend for IcedChartBackend<'a, B>
+impl<B> DrawingBackend for IcedChartBackend<'_, B>
 where
     B: text::Renderer<Font = Font>,
 {
@@ -207,12 +204,12 @@ where
         if style.color().alpha == 0.0 {
             return Ok(());
         }
-        let horizontal_alignment = match style.anchor().h_pos {
-            text_anchor::HPos::Left => Horizontal::Left,
-            text_anchor::HPos::Right => Horizontal::Right,
-            text_anchor::HPos::Center => Horizontal::Center,
+        let align_x = match style.anchor().h_pos {
+            text_anchor::HPos::Left => Alignment::Left,
+            text_anchor::HPos::Right => Alignment::Right,
+            text_anchor::HPos::Center => Alignment::Center,
         };
-        let vertical_alignment = match style.anchor().v_pos {
+        let align_y = match style.anchor().v_pos {
             text_anchor::VPos::Top => Vertical::Top,
             text_anchor::VPos::Center => Vertical::Center,
             text_anchor::VPos::Bottom => Vertical::Bottom,
@@ -224,12 +221,13 @@ where
         let text = canvas::Text {
             content: text.to_owned(),
             position: pos,
+            max_width: f32::INFINITY,
             color: cvt_color(&style.color()),
             size: (style.size() as f32).into(),
-            line_height: Default::default(),
+            line_height: LineHeight::default(),
             font,
-            horizontal_alignment,
-            vertical_alignment,
+            align_x,
+            align_y,
             shaping: self.shaping,
         };
         //TODO: fix rotation until text rotation is supported by Iced
@@ -264,12 +262,12 @@ where
     ) -> Result<(u32, u32), DrawingErrorKind<Self::ErrorType>> {
         let font = style_to_font(style);
         let bounds = self.frame.size();
-        let horizontal_alignment = match style.anchor().h_pos {
-            text_anchor::HPos::Left => Horizontal::Left,
-            text_anchor::HPos::Right => Horizontal::Right,
-            text_anchor::HPos::Center => Horizontal::Center,
+        let align_x = match style.anchor().h_pos {
+            text_anchor::HPos::Left => Alignment::Left,
+            text_anchor::HPos::Right => Alignment::Right,
+            text_anchor::HPos::Center => Alignment::Center,
         };
-        let vertical_alignment = match style.anchor().v_pos {
+        let align_y = match style.anchor().v_pos {
             text_anchor::VPos::Top => Vertical::Top,
             text_anchor::VPos::Center => Vertical::Center,
             text_anchor::VPos::Bottom => Vertical::Bottom,
@@ -279,10 +277,10 @@ where
             content: text,
             bounds,
             size: self.backend.default_size(),
-            line_height: Default::default(),
+            line_height: LineHeight::default(),
             font,
-            horizontal_alignment,
-            vertical_alignment,
+            align_x,
+            align_y,
             shaping: self.shaping,
             wrapping: iced_widget::core::text::Wrapping::Word,
         });
@@ -304,6 +302,7 @@ where
     }
 }
 
+#[allow(static_mut_refs)]
 fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
     // iced font family requires static str
     static mut FONTS: Lazy<HashSet<String>> = Lazy::new(HashSet::new);

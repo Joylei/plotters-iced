@@ -4,13 +4,13 @@
 // Copyright: 2022, Joylei <leingliu@gmail.com>
 // License: MIT
 
+use iced_graphics::core::event::Status;
 use iced_widget::canvas::Cache;
-use iced_widget::core::event::Status;
-use iced_widget::core::mouse::Interaction;
 use iced_widget::core::Rectangle;
+use iced_widget::core::mouse::Interaction;
 use iced_widget::{
     canvas::{Event, Frame, Geometry},
-    core::{mouse::Cursor, Size},
+    core::{Size, mouse::Cursor},
 };
 use plotters::{chart::ChartBuilder, coord::Shift, drawing::DrawingArea};
 use plotters_backend::DrawingBackend;
@@ -45,7 +45,7 @@ where
     fn update(
         &self,
         state: &mut Self::State,
-        event: Event,
+        event: &Event,
         bounds: Rectangle,
         cursor: Cursor,
     ) -> (Status, Option<Message>) {
@@ -148,7 +148,7 @@ pub trait Chart<Message> {
     fn update(
         &self,
         state: &mut Self::State,
-        event: Event,
+        event: &Event,
         bounds: Rectangle,
         cursor: Cursor,
     ) -> (Status, Option<Message>) {
