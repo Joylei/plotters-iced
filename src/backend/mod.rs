@@ -26,6 +26,7 @@ use plotters_backend::{
     FontStyle,
     text_anchor,
 };
+use std::collections::HashSet;
 use std::sync::{LazyLock, Mutex};
 
 /// The Iced drawing backend
@@ -303,26 +304,25 @@ where
 
 fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
     // iced font family requires static str
-    static FONTS: LazyLock<Mutex<Vec<&'static str>>> = LazyLock::new(|| Mutex::new(Vec::new()));
+    static FONTS: LazyLock<Mutex<HashSet<&'static str>>> =
+        LazyLock::new(|| Mutex::new(HashSet::new()));
 
     Font {
         family: match style.family() {
             FontFamily::Serif => font::Family::Serif,
             FontFamily::SansSerif => font::Family::SansSerif,
             FontFamily::Monospace => font::Family::Monospace,
-            FontFamily::Name(s) => {
-                if let Ok(mut vec_guard) = FONTS.lock() {
-                    if let Some(&s) = vec_guard.iter().find(|&&vec_str| vec_str == s) {
-                        font::Family::Name(s)
-                    } else {
+            FontFamily::Name(s) => FONTS.lock().map_or_else(
+                |_| font::Family::default(),
+                |mut vec_guard| {
+                    if !vec_guard.contains(s) {
                         let leaked_str = &Box::leak(Box::new(String::from(s)))[..];
-                        vec_guard.push(&leaked_str);
-                        font::Family::Name(leaked_str)
+                        vec_guard.insert(&leaked_str);
                     }
-                } else {
-                    font::Family::default()
-                }
-            }
+
+                    font::Family::Name(vec_guard.get(s).unwrap())
+                },
+            ),
         },
         weight: match style.style() {
             FontStyle::Bold => font::Weight::Bold,
