@@ -316,11 +316,10 @@ fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
                 |_| font::Family::default(),
                 |mut vec_guard| {
                     if !vec_guard.contains(s) {
-                        let leaked_str = &Box::leak(Box::new(String::from(s)))[..];
-                        vec_guard.insert(&leaked_str);
+                        vec_guard.insert(String::from(s).leak());
                     }
 
-                    font::Family::Name(vec_guard.get(s).unwrap())
+                    font::Family::Name(*vec_guard.get(s).unwrap())
                 },
             ),
         },
