@@ -14,7 +14,6 @@ use iced_widget::{
     text::Alignment,
     text::Shaping,
 };
-use once_cell::unsync::Lazy;
 use plotters_backend::{
     //FontTransform,
     BackendColor,
@@ -28,6 +27,7 @@ use plotters_backend::{
     text_anchor,
 };
 use std::collections::HashSet;
+use std::sync::{LazyLock, Mutex};
 
 /// The Iced drawing backend
 pub(crate) struct IcedChartBackend<'a, B> {
@@ -302,25 +302,26 @@ where
     }
 }
 
-#[allow(static_mut_refs)]
 fn style_to_font<S: BackendTextStyle>(style: &S) -> Font {
     // iced font family requires static str
-    static mut FONTS: Lazy<HashSet<String>> = Lazy::new(HashSet::new);
+    static FONTS: LazyLock<Mutex<HashSet<&'static str>>> =
+        LazyLock::new(|| Mutex::new(HashSet::new()));
 
     Font {
         family: match style.family() {
             FontFamily::Serif => font::Family::Serif,
             FontFamily::SansSerif => font::Family::SansSerif,
             FontFamily::Monospace => font::Family::Monospace,
-            FontFamily::Name(s) => {
-                let s = unsafe {
-                    if !FONTS.contains(s) {
-                        FONTS.insert(String::from(s));
+            FontFamily::Name(s) => FONTS.lock().map_or_else(
+                |_| font::Family::default(),
+                |mut vec_guard| {
+                    if !vec_guard.contains(s) {
+                        vec_guard.insert(String::from(s).leak());
                     }
-                    FONTS.get(s).unwrap().as_str()
-                };
-                font::Family::Name(s)
-            }
+
+                    font::Family::Name(*vec_guard.get(s).unwrap())
+                },
+            ),
         },
         weight: match style.style() {
             FontStyle::Bold => font::Weight::Bold,
