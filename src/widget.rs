@@ -127,6 +127,10 @@ where
         shell: &mut Shell<'_, Message>,
         _rectangle: &Rectangle,
     ) {
+        // Ignore events that were already captured (e.g. by a textbox)
+        if shell.is_event_captured() {
+            return;
+        }
         let bounds = layout.bounds();
         let canvas_event = if matches!(event, Event::Mouse(_) | Event::Keyboard(_)) {
             Some(event)
